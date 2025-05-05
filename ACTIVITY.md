@@ -1,6 +1,9 @@
 # A1:
 
--- Lorenzo: --
+-- Lorenzo: -- <br>
+Created PR: https://github.com/remla25-team8/app/pull/2
+Approved PR: https://github.com/remla25-team8/lib-version/pull/1
+
 -- Your names here --
 ...
 
