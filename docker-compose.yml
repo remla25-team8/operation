@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  app-service:
+    build:
+      context: ../app 
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - MODEL_SERVICE_URL=http://model-service:5000
+      # - MODEL_SERVICE_URL=http://192.168.0.103:5000
+    depends_on:
+      - model-service
+    volumes:
+      - ../app:/root/app 
+    restart: always
+    networks:
+      - app-network
+
+  model-service:
+    build:
+      context: ../model-service 
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000" 
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
+      - HOST=0.0.0.0
+    volumes:
+      - ../model-service:/root/app
+    restart: always 
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
