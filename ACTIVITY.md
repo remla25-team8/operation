@@ -16,7 +16,13 @@ Approved PR: https://github.com/remla25-team8/lib-ml/pull/2
 Createrd PR: https://github.com/remla25-team8/operation/pull/3
 Approved PR: https://github.com/remla25-team8/model-training/pull/1
 
--- YOUR NAME HERE --
+-- Todor Mladenovic --
+Created PR: 
+- https://github.com/remla25-team8/model-training/pull/1 
+- https://github.com/remla25-team8/model-training/pull/2
+Approved PR: 
+- https://github.com/remla25-team8/lib-ml/pull/1
+- https://github.com/remla25-team8/lib-ml/pull/3
 ...
 
 # A2:
