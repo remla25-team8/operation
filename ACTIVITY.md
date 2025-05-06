@@ -12,6 +12,10 @@ Approved PR: https://github.com/remla25-team8/model-service/pull/1
 Createrd PR: https://github.com/remla25-team8/model-service/pull/1
 Approved PR: https://github.com/remla25-team8/lib-ml/pull/2
 
+-- Xinyu Gao --
+Createrd PR: https://github.com/remla25-team8/operation/pull/3
+Approved PR: https://github.com/remla25-team8/model-training/pull/1
+
 -- YOUR NAME HERE --
 ...
 
