@@ -1,49 +1,39 @@
 services:
   app-service:
-    # build:
-    #   context: ../app 
-    #   dockerfile: Dockerfile
     image: ${APP_SERVICE_IMAGE}:${APP_SERVICE_VERSION}
-    # build: https://github.com/remla25-team8/app.git
     ports:
-      # - "8080:8080"
       - "${APP_SERVICE_PORT}:${APP_SERVICE_PORT}"
     environment:
-      # - MODEL_SERVICE_URL=http://192.168.0.103:5000
-      # - MODEL_SERVICE_URL=http://model-service:5000
       - MODEL_SERVICE_URL=http://model-service:${MODEL_SERVICE_PORT}
       - PORT=${APP_SERVICE_PORT}
       - APP_VERSION=${APP_SERVICE_VERSION}
       - MODEL_SERVICE_VERSION=${MODEL_SERVICE_VERSION}
-    # depends_on:
-      # - model-service
     volumes:
-      # - ../app:/root/app 
-      - .:/root/mount # not used if we use the image from the registry
+      - .:/root/mount
     restart: always
+    depends_on:
+      - model-service
     networks:
-      - app-network
+      - frontend
+      - backend
 
   model-service:
-    # build:
-    #   context: ../model-service 
-    #   dockerfile: Dockerfile
     image: ${MODEL_SERVICE_IMAGE}:${MODEL_SERVICE_VERSION}
-    # build: https://github.com/remla25-team8/model-service.git
-    ports:
-      # - "5000:5000" 
-      - "${MODEL_SERVICE_PORT}:${MODEL_SERVICE_PORT}"
+    # No ports exposed to host so it cannot access the model service
     environment:
       - FLASK_ENV=production
       - PORT=${MODEL_SERVICE_PORT}
       - HOST=0.0.0.0
     volumes:
-      # - ../model-service:/root/app
-      - .:/root/mount # not used if we use the image from the registry
-    restart: always 
+      - .:/root/mount
+    restart: always
     networks:
-      - app-network
+      - backend
 
 networks:
-  app-network:
+  frontend:
+    # External facing network
+    driver: bridge
+  backend:
+    # Network for internal communication (it allows internet access from host)
     driver: bridge
