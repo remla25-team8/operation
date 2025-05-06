@@ -49,7 +49,7 @@ Key files and directories for understanding the deployment architecture:
 
 Significant progress has been made across various repositories:
 
-- **Model-Training**: Created the ML training pipeline using a Hugging Face model and versioning automation.
+- **Model-Training**: Created the ML training pipeline using Hugging Face model as model registry. Also created workflow for relase automation of both model to hugging face and docker image to ghcr when a version tag is created.
 - **Model-Service**: Set up a Docker container to serve the ML model via a Flask API, ensuring the model can be queried independently. Workflow is used to automatically release an image in GHCR.
 - **Lib-ML**: Contains the preprocessing logic, which is used both in model-training and model-service, released via PyPi for easy dependency management.
 - **Lib-Version**: Developed a version-aware library that can be asked for the version of the library.
