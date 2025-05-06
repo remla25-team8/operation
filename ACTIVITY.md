@@ -8,6 +8,10 @@ Approved PR: https://github.com/remla25-team8/lib-version/pull/1
 Created PR: https://github.com/remla25-team8/lib-ml/pull/1
 Approved PR: https://github.com/remla25-team8/model-service/pull/1
 
+-- Cristian Perlog --
+Createrd PR: https://github.com/remla25-team8/model-service/pull/1
+Approved PR: https://github.com/remla25-team8/lib-ml/pull/2
+
 -- YOUR NAME HERE --
 ...
 
