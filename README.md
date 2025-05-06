@@ -33,6 +33,16 @@ This repository orchestrates the deployment of our Restaurant Sentiment Analysis
     docker compose up -d
    ```
 
+## Code Structure
+
+Key files and directories for understanding the deployment architecture:
+
+| File/Directory | Purpose |
+|---------------|---------|
+| `docker-compose.yml` | Main orchestration file defining all services and their relationships |
+| `.env` | Environment variables configuration (ports, versions, resource limits) |
+
+
 ## Assignment Progress Log
 
 ### Assignment A1
