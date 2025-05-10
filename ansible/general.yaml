@@ -61,6 +61,7 @@
         key: "{{ lookup('file', item) }}"
       with_items:
         - "files/ssh_keys/lorenzo.pub"
+        - "files/ssh_keys/yongcheng.pub"
         # Add your public ssh keys (at least two)
 
     # Includes specific playbook for controller
