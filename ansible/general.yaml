@@ -101,6 +101,7 @@
         name: br_netfilter
         state: present
       when: k8s_conf.changed
+
     - name: Enable IPv4 forwarding and bridge filtering
       ansible.builtin.sysctl:
         name: "{{ item }}"
@@ -112,3 +113,9 @@
         - net.ipv4.ip_forward
         - net.bridge.bridge-nf-call-iptables
         - net.bridge.bridge-nf-call-ip6tables
+    
+    - name: Manage /etc/hosts file
+      ansible.builtin.template:
+        src: templates/hosts.j2
+        dest: /etc/hosts
+        mode: '0644'
