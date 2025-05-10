@@ -1,8 +1,8 @@
-WORKER_COUNT = 2        # Numero di worker nodes nel cluster
-MEMORY_CONTROLLER = 1024#4096 # Memoria in MB per il nodo controller
-MEMORY_WORKER = 1024#6144     # Memoria in MB per ciascun worker node
-CPU_CONTROLLER = 1       # CPU cores per il nodo controller
-CPU_WORKER = 1           # CPU cores per ciascun worker node
+WORKER_COUNT = 2        # Number of workers within cluster
+MEMORY_CONTROLLER = 4096 # Controller memory (MB)
+MEMORY_WORKER = 6144     # Workers memory (MB for each worker)
+CPU_CONTROLLER = 1       # Controller CPU cores
+CPU_WORKER = 1           # Worker CPU cores (each)
 
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-24.04"

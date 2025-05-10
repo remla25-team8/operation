@@ -2,6 +2,15 @@
 - hosts: all
   become: true
   tasks:
+    - name: Get hostname
+      command: hostname
+      register: hostname_result
+      changed_when: false # Rende il task idempotente
+
+    - name: Display hostname
+      debug:
+        msg: "Current hostname is: {{ hostname_result.stdout }}"
+
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -18,7 +27,25 @@
           - python3-pip
         state: present
 
-    # Asignment's Step 4: Register SSH Keys
+    - name: Generate Ansible inventory file # from templates/inventory.cfg.j2
+      template:
+        src: inventory.cfg.j2
+        dest: /home/vagrant/inventory.cfg
+        owner: vagrant
+        group: vagrant
+        mode: "0644"
+      when: inventory_hostname == groups['controller'][0]
+
+    # Step 8 (to complete and test)
+    - name: Configure /etc/hosts file # from templates/hosts.j2
+      template:
+        src: hosts.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: "0644"
+
+    # Step 4: Register SSH Keys
     - name: Ensure .ssh directory exists
       file:
         path: /home/vagrant/.ssh
