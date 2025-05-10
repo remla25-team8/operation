@@ -198,3 +198,31 @@
         state: restarted
         enabled: yes
       when: config_generated.changed or config_generated.skipped is not defined
+
+    - name: Ensure kubelet service.d directory exists
+      ansible.builtin.file:
+        path: /etc/systemd/system/kubelet.service.d
+        state: directory
+        mode: '0755'
+
+    - name: Ensure kubelet environment file exists
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        content: |
+          [Service]
+          Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+          Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+          Environment="KUBELET_KUBEADM_ARGS=--network-plugin=cni --pod-infra-container-image=registry.k8s.io/pause:3.10"
+        mode: '0644'
+      register: kubelet_env
+
+    - name: Reload systemd daemon after kubelet env update
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      when: kubelet_env.changed
+
+    - name: Enable and start kubelet service
+      ansible.builtin.service:
+        name: kubelet
+        state: started
+        enabled: yes
