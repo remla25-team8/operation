@@ -73,3 +73,16 @@
     - name: Include worker specific tasks
       include_tasks: node.yaml
       when: inventory_hostname in groups['worker']
+
+    # Step 5: Disable SWAP
+    - name: Disable SWAP for current session
+      ansible.builtin.shell:
+        cmd: swapoff -a
+      changed_when: false
+      failed_when: false
+
+    - name: Remove SWAP entry from /etc/fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^[^#].*\sswap\s'
+        state: absent
