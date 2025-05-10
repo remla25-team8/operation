@@ -101,3 +101,14 @@
         name: br_netfilter
         state: present
       when: k8s_conf.changed
+    - name: Enable IPv4 forwarding and bridge filtering
+      ansible.builtin.sysctl:
+        name: "{{ item }}"
+        value: '1'
+        state: present
+        sysctl_set: yes
+        reload: yes
+      loop:
+        - net.ipv4.ip_forward
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
