@@ -114,12 +114,6 @@
         - net.bridge.bridge-nf-call-iptables
         - net.bridge.bridge-nf-call-ip6tables
     
-    - name: Manage /etc/hosts file
-      ansible.builtin.template:
-        src: templates/hosts.j2
-        dest: /etc/hosts
-        mode: '0644'
-
     - name: Add Kubernetes apt key
       ansible.builtin.apt_key:
         url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
