@@ -86,3 +86,18 @@
         path: /etc/fstab
         regexp: '^[^#].*\sswap\s'
         state: absent
+
+    - name: Create k8s.conf for module loading
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        mode: '0644'
+      register: k8s_conf
+
+    - name: Load br_netfilter module
+      ansible.builtin.modprobe:
+        name: br_netfilter
+        state: present
+      when: k8s_conf.changed
