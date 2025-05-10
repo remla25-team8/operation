@@ -155,3 +155,46 @@
         - kubectl
         - containerd
         - runc
+
+    - name: Ensure /etc/containerd directory exists
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '0755'
+
+    - name: Generate default containerd configuration
+      ansible.builtin.shell:
+        cmd: containerd config default > /etc/containerd/config.toml
+        creates: /etc/containerd/config.toml
+      register: config_generated
+
+    - name: Configure containerd - disable AppArmor
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*disable_apparmor\s*=\s*).*$'
+        line: '\1true'
+        backrefs: yes
+      when: config_generated.changed or config_generated.skipped is not defined
+
+    - name: Configure containerd - set sandbox image
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*sandbox_image\s*=\s*).*$'
+        line: '\1"registry.k8s.io/pause:3.10"'
+        backrefs: yes
+      when: config_generated.changed or config_generated.skipped is not defined
+
+    - name: Configure containerd - enable SystemdCgroup
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*SystemdCgroup\s*=\s*).*$'
+        line: '\1true'
+        backrefs: yes
+      when: config_generated.changed or config_generated.skipped is not defined
+
+    - name: Restart containerd service
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: yes
+      when: config_generated.changed or config_generated.skipped is not defined
