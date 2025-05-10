@@ -1,0 +1,7 @@
+---
+# This playbook contains specific tasks for worker nodes.
+# It will be executed only on worker nodes as part of the playbook general.yaml
+
+- name: Placeholder for worker node specific tasks
+  debug:
+    msg: "Worker node specific provisioning will be configured in later steps"

@@ -1,0 +1,47 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install common packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+        state: present
+
+    # Asignment's Step 4: Register SSH Keys
+    - name: Ensure .ssh directory exists
+      file:
+        path: /home/vagrant/.ssh
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: "0700"
+
+    - name: Add SSH public keys
+      authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      with_items:
+        - "files/ssh_keys/lorenzo.pub"
+        # Add your public ssh keys (at least two)
+
+    # Includes specific playbook for controller
+    - name: Include controller specific tasks
+      include_tasks: ctrl.yaml
+      when: inventory_hostname in groups['controller']
+
+    # Includes specific playbook for worker
+    - name: Include worker specific tasks
+      include_tasks: node.yaml
+      when: inventory_hostname in groups['worker']
