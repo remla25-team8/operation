@@ -1,0 +1,10 @@
+---
+# This playbook will run after all nodes have been configured.
+# And the Kubernetes cluster has been initialized.
+
+- hosts: controller
+  become: true
+  tasks:
+    - name: Placeholder for finalization tasks
+      debug:
+        msg: "Finalization tasks will be configured in later steps"

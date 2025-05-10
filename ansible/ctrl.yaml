@@ -1,0 +1,7 @@
+---
+# This playbook contains specific tasks for the controller node.
+# It will be executed only on the controller node as part of the playbook general.yaml
+
+- name: Placeholder for controller specific tasks
+  debug:
+    msg: "Controller node specific provisioning will be configured in later steps"
