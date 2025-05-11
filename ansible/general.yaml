@@ -62,12 +62,13 @@
       with_items:
         - "files/ssh_keys/lorenzo.pub"
         - "files/ssh_keys/yongcheng.pub"
+        - "files/ssh_keys/xin.pub"
         # Add your public ssh keys (at least two)
 
-    # Includes specific playbook for worker
-    - name: Include worker specific tasks
-      include_tasks: node.yaml
-      when: inventory_hostname in groups['worker']
+    # # Includes specific playbook for worker
+    # - name: Include worker specific tasks
+    #   include_tasks: node.yaml
+    #   when: inventory_hostname in groups['worker']
 
     # Step 5: Disable SWAP
     - name: Disable SWAP for current session
@@ -109,11 +110,12 @@
         - net.bridge.bridge-nf-call-iptables
         - net.bridge.bridge-nf-call-ip6tables
     
-    - name: Manage /etc/hosts file
-      ansible.builtin.template:
-        src: templates/hosts.j2
-        dest: /etc/hosts
-        mode: '0644'
+    # the following 5 lines are removed in main, so tackle them before merging
+    # - name: Manage /etc/hosts file
+    #   ansible.builtin.template:
+    #     src: templates/hosts.j2
+    #     dest: /etc/hosts
+    #     mode: '0644'
 
     - name: Add Kubernetes apt key
       ansible.builtin.apt_key:
@@ -158,66 +160,128 @@
         mode: '0755'
 
     - name: Generate default containerd configuration
-      ansible.builtin.shell:
-        cmd: containerd config default > /etc/containerd/config.toml
+      # ansible.builtin.shell:
+      #   cmd: containerd config default > /etc/containerd/config.toml
+      #   creates: /etc/containerd/config.toml
+      # register: config_generated
+      command: containerd config default
+      args:
         creates: /etc/containerd/config.toml
-      register: config_generated
+      register: containerd_default_cfg
 
-    - name: Configure containerd - disable AppArmor
-      ansible.builtin.lineinfile:
+    # - name: Configure containerd - disable AppArmor
+    #   ansible.builtin.lineinfile:
+    #     path: /etc/containerd/config.toml
+    #     regexp: '^(\s*disable_apparmor\s*=\s*).*$'
+    #     line: '\1true'
+    #     backrefs: yes
+    #   when: config_generated.changed or config_generated.skipped is not defined
+
+    # - name: Configure containerd - set sandbox image
+    #   ansible.builtin.lineinfile:
+    #     path: /etc/containerd/config.toml
+    #     regexp: '^(\s*sandbox_image\s*=\s*).*$'
+    #     line: '\1"registry.k8s.io/pause:3.10"'
+    #     backrefs: yes
+    #   when: config_generated.changed or config_generated.skipped is not defined
+
+    # - name: Configure containerd - enable SystemdCgroup
+    #   ansible.builtin.lineinfile:
+    #     path: /etc/containerd/config.toml
+    #     regexp: '^(\s*SystemdCgroup\s*=\s*).*$'
+    #     line: '\1true'
+    #     backrefs: yes
+    #   when: config_generated.changed or config_generated.skipped is not defined
+
+    # - name: Restart containerd service
+    #   ansible.builtin.service:
+    #     name: containerd
+    #     state: restarted
+    #     enabled: yes
+    #   when: config_generated.changed or config_generated.skipped is not defined
+
+    # - name: Ensure kubelet service.d directory exists
+    #   ansible.builtin.file:
+    #     path: /etc/systemd/system/kubelet.service.d
+    #     state: directory
+    #     mode: '0755'
+
+    # - name: Ensure kubelet environment file exists
+    #   ansible.builtin.copy:
+    #     dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    #     content: |
+    #       [Service]
+    #       Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+    #       Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+    #       Environment="KUBELET_KUBEADM_ARGS=--network-plugin=cni --pod-infra-container-image=registry.k8s.io/pause:3.10"
+    #     mode: '0644'
+    #   register: kubelet_env
+
+    # - name: Reload systemd daemon after kubelet env update
+    #   ansible.builtin.systemd:
+    #     daemon_reload: yes
+    #   when: kubelet_env.changed
+
+    # - name: Ensure kubelet depends on containerd
+    #   ansible.builtin.copy:
+    #     dest: /etc/systemd/system/kubelet.service.d/20-containerd.conf
+    #     content: |
+    #       [Unit]
+    #       After=containerd.service
+    #       Requires=containerd.service
+    #     mode: '0644'
+    #   register: kubelet_dependency
+
+    # - name: Reload systemd daemon after kubelet dependency update
+    #   ansible.builtin.systemd:
+    #     daemon_reload: yes
+    #   when: kubelet_dependency.changed
+
+    # - name: Enable and start kubelet service
+    #   ansible.builtin.service:
+    #     name: kubelet
+    #     state: started
+    #     enabled: yes
+    - name: Write default config to /etc/containerd/config.toml
+      copy:
+        content: "{{ containerd_default_cfg.stdout }}"
+        dest: /etc/containerd/config.toml
+      when: containerd_default_cfg is changed
+
+    - name: Disable AppArmor in containerd CRI plugin
+      lineinfile:
         path: /etc/containerd/config.toml
-        regexp: '^(\s*disable_apparmor\s*=\s*).*$'
-        line: '\1true'
-        backrefs: yes
-      when: config_generated.changed or config_generated.skipped is not defined
+        regexp: '^\s*disable_apparmor\s*='
+        line: '      disable_apparmor = true'
+        insertafter: '^\[plugins\."io.containerd.grpc.v1.cri"\]'
+      notify: Restart containerd
 
-    - name: Configure containerd - set sandbox image
-      ansible.builtin.lineinfile:
+    - name: Set pause sandbox image in containerd CRI plugin
+      lineinfile:
         path: /etc/containerd/config.toml
-        regexp: '^(\s*sandbox_image\s*=\s*).*$'
-        line: '\1"registry.k8s.io/pause:3.10"'
-        backrefs: yes
-      when: config_generated.changed or config_generated.skipped is not defined
+        regexp: '^\s*sandbox_image\s*='
+        line: '      sandbox_image = "registry.k8s.io/pause:3.10"'
+        insertafter: '^\[plugins\."io.containerd.grpc.v1.cri"\]'
+      notify: Restart containerd
 
-    - name: Configure containerd - enable SystemdCgroup
-      ansible.builtin.lineinfile:
+    - name: Enable systemd cgroup driver for runc in containerd
+      blockinfile:
         path: /etc/containerd/config.toml
-        regexp: '^(\s*SystemdCgroup\s*=\s*).*$'
-        line: '\1true'
-        backrefs: yes
-      when: config_generated.changed or config_generated.skipped is not defined
-
-    - name: Restart containerd service
-      ansible.builtin.service:
-        name: containerd
-        state: restarted
-        enabled: yes
-      when: config_generated.changed or config_generated.skipped is not defined
-
-    - name: Ensure kubelet service.d directory exists
-      ansible.builtin.file:
-        path: /etc/systemd/system/kubelet.service.d
-        state: directory
-        mode: '0755'
-
-    - name: Ensure kubelet environment file exists
-      ansible.builtin.copy:
-        dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-        content: |
-          [Service]
-          Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
-          Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
-          Environment="KUBELET_KUBEADM_ARGS=--network-plugin=cni --pod-infra-container-image=registry.k8s.io/pause:3.10"
-        mode: '0644'
-      register: kubelet_env
-
-    - name: Reload systemd daemon after kubelet env update
-      ansible.builtin.systemd:
-        daemon_reload: yes
-      when: kubelet_env.changed
+        marker: "# {mark} ANSIBLE RUNC OPTIONS"
+        insertafter: '^\[plugins\."io.containerd.grpc.v1.cri"\.containerd\.runtimes\.runc\.options\]'
+        block: |
+          SystemdCgroup = true
+      notify: Restart containerd
 
     - name: Enable and start kubelet service
       ansible.builtin.service:
         name: kubelet
         state: started
         enabled: yes
+
+  handlers:
+    - name: Restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+
