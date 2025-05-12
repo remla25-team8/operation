@@ -9,11 +9,11 @@ Created PR: https://github.com/remla25-team8/lib-ml/pull/1
 Approved PR: https://github.com/remla25-team8/model-service/pull/1
 
 -- Cristian Perlog --
-Createrd PR: https://github.com/remla25-team8/model-service/pull/1
+Created PR: https://github.com/remla25-team8/model-service/pull/1
 Approved PR: https://github.com/remla25-team8/lib-ml/pull/2
 
 -- Xinyu Gao --
-Createrd PR: https://github.com/remla25-team8/operation/pull/3
+Created PR: https://github.com/remla25-team8/operation/pull/3
 Approved PR: https://github.com/remla25-team8/model-training/pull/1
 
 -- Todor Mladenovic --
@@ -36,11 +36,11 @@ Created PR:
 Approved PR:
 
 -- Cristian Perlog --
-Createrd PR:
-Approved PR:
+Created PR: https://github.com/remla25-team8/operation/pull/10
+Approved PR: https://github.com/remla25-team8/operation/pull/9
 
 -- Xinyu Gao --
-Createrd PR:
+Created PR:
 Approved PR:
 
 -- Todor Mladenovic --
