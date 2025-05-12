@@ -142,9 +142,11 @@
 
     - name: Add Helm repository
       ansible.builtin.apt_repository:
-        repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
-        state: present
+        repo: >
+          deb [signed-by=/etc/apt/trusted.gpg] 
+          https://baltocdn.com/helm/stable/debian/ all main /
         filename: helm-stable
+        state: present
 
     - name: Wait for API server to become responsive
       ansible.builtin.shell: |
