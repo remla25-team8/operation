@@ -44,7 +44,7 @@
       cpu_worker: CPU_WORKER
     }
     
-    # First setup the controller node - only on ctrl
+    # Step 1: Setup the controller node
     config.vm.define "ctrl" do |ctrl|
       ctrl.vm.provision "ansible" do |ansible|
         ansible.playbook = "ansible/setup-controller.yaml"
@@ -53,17 +53,39 @@
       end
     end
     
-    # Finally setup the worker nodes - only on worker nodes
+    # Step 2: General setup for worker nodes
     (1..WORKER_COUNT).each do |i|
       config.vm.define "node-#{i}" do |node|
         node.vm.provision "ansible" do |ansible|
-          ansible.playbook = "ansible/setup-workers.yaml"
+          ansible.playbook = "ansible/general.yaml"
+          ansible.groups = ansible_groups
+          ansible.extra_vars = ansible_vars
+        end
+      end
+    end
+
+    # Step 3: Controller pings worker nodes
+    config.vm.define "ctrl" do |ctrl|
+      ctrl.vm.provision "ansible" do |ansible|
+        ansible.playbook = "ansible/controller_pinger.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = ansible_vars
+      end
+    end
+    
+    # Step 4: Join worker nodes to the cluster
+    (1..WORKER_COUNT).each do |i|
+      config.vm.define "node-#{i}" do |node|
+        node.vm.provision "ansible" do |ansible|
+          ansible.playbook = "ansible/node.yaml"
           ansible.groups = ansible_groups
           ansible.extra_vars = ansible_vars
         end
       end
     end
   end
+
+  # Commented out legacy configuration
   # Vagrant.configure("2") do |config|
   #   config.vm.box = "bento/ubuntu-24.04"
   #   # Controller node
@@ -93,7 +115,7 @@
   #       }
   #     end
   #   end
-    
+  #   
   #   # Worker nodes
   #   (1..WORKER_COUNT).each do |i|
   #     config.vm.define "node-#{i}" do |node|
@@ -114,7 +136,7 @@
   #       "worker" => (1..WORKER_COUNT).map { |j| "node-#{j}" },
   #       "all:children" => ["controller", "worker"]
   #     }
-      
+  #     
   #     ansible.extra_vars = {
   #       worker_count: WORKER_COUNT,
   #       memory_controller: MEMORY_CONTROLLER,
@@ -124,47 +146,4 @@
   #     }
   #     ansible.limit = "all" # Ensures the playbook applies to all nodes
   #   end
-
-  #   #     # Executes Ansible after the configuration of last node
-  #   #     # if i == WORKER_COUNT
-  #   #       node.vm.provision "ansible" do |ansible|
-  #   #         ansible.playbook = "ansible/general.yaml"
-            
-  #   #         ansible.groups = {
-  #   #           "controller" => ["ctrl"],
-  #   #           "worker" => (1..WORKER_COUNT).map { |j| "node-#{j}" },
-  #   #           "all:children" => ["controller", "worker"]
-  #   #         }
-            
-  #   #         ansible.extra_vars = {
-  #   #           worker_count: WORKER_COUNT,
-  #   #           memory_controller: MEMORY_CONTROLLER,
-  #   #           memory_worker: MEMORY_WORKER,
-  #   #           cpu_controller: CPU_CONTROLLER,
-  #   #           cpu_worker: CPU_WORKER
-  #   #         }
-  #   #       end
-  #   #         # ansible.limit = "all"
-
-  #   #       # Run node.yaml specifically for worker nodes
-  #   #       node.vm.provision "ansible_local" do |ansible|
-  #   #         ansible.playbook = "ansible/node.yaml"
-  #   #         ansible.groups = {
-  #   #           "controller" => ["ctrl"],
-  #   #           "worker" => (1..WORKER_COUNT).map { |j| "node-#{j}" },
-  #   #           "all:children" => ["controller", "worker"]
-  #   #         }
-
-  #   #         ansible.extra_vars = {
-  #   #           worker_count: WORKER_COUNT,
-  #   #           memory_controller: MEMORY_CONTROLLER,
-  #   #           memory_worker: MEMORY_WORKER,
-  #   #           cpu_controller: CPU_CONTROLLER,
-  #   #           cpu_worker: CPU_WORKER
-  #   #         }
-  #   #       end
-
-  #   #     # end
-  #   #   end
-  #   # end
   # end
