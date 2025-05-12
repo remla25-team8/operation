@@ -64,11 +64,6 @@
         - "files/ssh_keys/yongcheng.pub"
         # Add your public ssh keys (at least two)
 
-    # Includes specific playbook for controller
-    - name: Include controller specific tasks
-      include_tasks: ctrl.yaml
-      when: inventory_hostname in groups['controller']
-
     # Includes specific playbook for worker
     - name: Include worker specific tasks
       include_tasks: node.yaml

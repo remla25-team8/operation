@@ -1,7 +1,113 @@
 ---
-# This playbook contains specific tasks for the controller node.
-# It will be executed only on the controller node as part of the playbook general.yaml
+- name: Configure Kubernetes controller node
+  hosts: controller
+  become: true
 
-- name: Placeholder for controller specific tasks
-  debug:
-    msg: "Controller node specific provisioning will be configured in later steps"
+  tasks:
+    # Check for existing cluster
+    - name: Check if admin.conf exists
+      ansible.builtin.stat:
+        path: /etc/kubernetes/admin.conf
+      register: kube_config
+
+    # Cleanup only if needed
+    - name: Conditional reset
+      ansible.builtin.command: kubeadm reset -f
+      when: 
+        - not kube_config.stat.exists
+        - "'controller' in group_names"
+      ignore_errors: yes
+      register: reset_result
+      changed_when: reset_result.rc == 0
+
+    # Step 13
+    - name: Initialize Kubernetes cluster
+      ansible.builtin.command: >
+        kubeadm init
+        --apiserver-advertise-address=192.168.56.100
+        --node-name=ctrl
+        --pod-network-cidr=10.244.0.0/16
+      when: not kube_config.stat.exists
+      register: init_result
+
+    # Verification point
+    - name: Verify cluster is ready
+      block:
+        - name: Check admin.conf exists
+          ansible.builtin.stat:
+            path: /etc/kubernetes/admin.conf
+          register: cluster_ready
+          until: cluster_ready.stat.exists
+      when: init_result is succeeded or kube_config.stat.exists
+
+    # Step 14 - Kubectl configuration
+    - name: Setup kubectl configuration
+      block:
+        - name: Create .kube directory
+          ansible.builtin.file:
+            path: /home/vagrant/.kube
+            state: directory
+            owner: vagrant
+            group: vagrant
+            mode: '0755'
+
+        - name: Copy admin.conf for user
+          ansible.builtin.copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /home/vagrant/.kube/config
+            remote_src: yes
+            owner: vagrant
+            group: vagrant
+            mode: '0600'
+
+        - name: Share config with host
+          ansible.builtin.copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /vagrant/admin.conf
+            remote_src: yes
+            mode: '0644'
+      when: cluster_ready.stat.exists
+
+    #Step 15
+    - name: Configure Flannel CNI
+      block:
+        - name: Download Flannel manifest
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/flannel-io/flannel/v0.26.7/Documentation/kube-flannel.yml
+            dest: /tmp/kube-flannel.yml
+            mode: '0644'
+
+        - name: Insert --iface=eth1 after --kube-subnet-mgr in Flannel config
+          ansible.builtin.replace:
+            path: /tmp/kube-flannel.yml
+            regexp: '(^\s*- --kube-subnet-mgr\s*$)'
+            replace: '\1\n        - --iface=eth1'
+
+        - name: Apply Flannel CNI
+          ansible.builtin.command: kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
+      when: cluster_ready.stat.exists
+
+    # Step 16 - Helm installation
+    - name: Add Helm GPG key
+      ansible.builtin.apt_key:
+        url: https://baltocdn.com/helm/signing.asc
+        state: present
+
+    - name: Add Helm repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+        state: present
+        filename: helm-stable
+
+    - name: Install Helm
+      ansible.builtin.apt:
+        name: helm
+        state: present
+        update_cache: yes
+
+    # Step 17
+    - name: Install helm-diff plugin
+      ansible.builtin.command: helm plugin install https://github.com/databus23/helm-diff
+      args:
+        creates: /home/vagrant/.local/share/helm/plugins/helm-diff
+      become_user: vagrant

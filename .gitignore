@@ -2,6 +2,9 @@
 ### Ansible ###
 *.retry
 
+### Kubernetes kubeconfig ###
+admin.conf
+
 ### macOS ###
 # General
 .DS_Store
