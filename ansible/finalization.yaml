@@ -2,9 +2,150 @@
 # This playbook will run after all nodes have been configured.
 # And the Kubernetes cluster has been initialized.
 
-- hosts: controller
+- hosts: all
   become: true
+  pre_tasks:
+    - name: Ensure required Ansible collections are installed
+      ansible.builtin.pip:
+        name:
+          - kubernetes
+          - PyYAML
+        state: present
+      become: true
+
+    - name: Install Ansible Kubernetes collection
+      ansible.builtin.command: ansible-galaxy collection install kubernetes.core
+      changed_when: false
+  
   tasks:
-    - name: Placeholder for finalization tasks
+    # Step 20: Install MetalLB
+    - name: Download MetalLB manifests
+      get_url:
+        url: https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+        dest: /tmp/metallb-native-0.14.9.yml
+        mode: '0644'
+
+    - name: Install MetalLB
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/metallb-native-0.14.9.yml
+
+    - name: Wait for MetalLB controller to be ready
+      shell: kubectl wait -n metallb-system -l app=metallb,component=controller --for=condition=ready pod --timeout=60s
+      changed_when: false
+
+    - name: Create MetalLB IP address pool
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: first-pool
+            namespace: metallb-system
+          spec:
+            addresses:
+              - 192.168.56.90-192.168.56.99
+
+    - name: Create MetalLB L2 advertisement
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: example
+            namespace: metallb-system
+          spec:
+            ipAddressPools:
+              - first-pool
+
+    # Step 21: Install Nginx Ingress Controller
+    - name: Add Nginx Ingress Helm repository
+      kubernetes.core.helm_repository:
+        name: ingress-nginx
+        repo_url: https://kubernetes.github.io/ingress-nginx
+
+    - name: Install Nginx Ingress Controller
+      kubernetes.core.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx
+        create_namespace: true
+        values:
+          controller:
+            service:
+              loadBalancerIP: 192.168.56.90
+
+    # Step 22: Install Kubernetes Dashboard
+    - name: Add Kubernetes Dashboard Helm repository
+      kubernetes.core.helm_repository:
+        name: kubernetes-dashboard
+        repo_url: https://kubernetes.github.io/dashboard
+
+    - name: Install Kubernetes Dashboard
+      kubernetes.core.helm:
+        name: kubernetes-dashboard
+        chart_ref: kubernetes-dashboard/kubernetes-dashboard
+        release_namespace: kubernetes-dashboard
+        create_namespace: true
+
+    - name: Create admin user for Dashboard
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: admin-user
+            namespace: kubernetes-dashboard
+
+    - name: Create cluster role binding for admin user
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: admin-user
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+          - kind: ServiceAccount
+            name: admin-user
+            namespace: kubernetes-dashboard
+
+    - name: Create Ingress for Kubernetes Dashboard
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+            annotations:
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          spec:
+            ingressClassName: nginx
+            rules:
+            - host: dashboard.local
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: kubernetes-dashboard
+                      port:
+                        number: 443
+
+    - name: Instructions to access Dashboard
       debug:
-        msg: "Finalization tasks will be configured in later steps"
+        msg:
+          - "Dashboard has been deployed. To access it:"
+          - "1. Add 'dashboard.local' to your hosts file pointing to 192.168.56.90"
+          - "2. Run this command to get a login token: kubectl -n kubernetes-dashboard create token admin-user"
+          - "3. Access the dashboard at http://dashboard.local"
