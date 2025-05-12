@@ -63,6 +63,7 @@
         - "files/ssh_keys/lorenzo.pub"
         - "files/ssh_keys/yongcheng.pub"
         - "files/ssh_keys/xin.pub"
+        - "files/ssh_keys/todor.pub"
         # Add your public ssh keys (at least two)
 
     # # Includes specific playbook for worker
