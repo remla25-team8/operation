@@ -33,39 +33,35 @@ Created PR:
 Approved PR: 
 - https://github.com/remla25-team8/lib-ml/pull/1
 - https://github.com/remla25-team8/lib-ml/pull/3
-...
 
 # A2:
-### Lorenzo
 
-Created PR:
-Approved PR:
+-- Lorenzo: --
+Created PR: https://github.com/remla25-team8/operation/pull/9
+Approved PR:https://github.com/remla25-team8/operation/pull/11 https://github.com/remla25-team8/operation/pull/10
 
-### Yongcheng
+-- Yongcheng Huang --
+Created PR: https://github.com/remla25-team8/operation/pull/9
+Approved PR: https://github.com/remla25-team8/operation/pull/10
 
-Created PR:
-Approved PR:
-
-### Xinyu
-
-Created PR:
-Approved PR:
-
-### Cristian
-
+-- Cristian Perlog --
 Created PR: https://github.com/remla25-team8/operation/pull/10
 Approved PR: https://github.com/remla25-team8/operation/pull/9
 
-### Todor
+-- Xinyu Gao --
+Created PR: https://github.com/remla25-team8/operation/pull/11
+Approved PR: I was supposed to approve pull 10 but somehow it was not taken into account.
+
+-- Todor Mladenovic --
 
 Created PR: https://github.com/remla25-team8/operation/pull/12
 Approved PR: https://github.com/remla25-team8/operation/pull/11
 
+
 # A3:
+
 ...
 
 # A4:
-...
 
-# A5:
 ...
