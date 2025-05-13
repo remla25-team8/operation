@@ -40,8 +40,8 @@ Created PR: https://github.com/remla25-team8/operation/pull/10
 Approved PR: https://github.com/remla25-team8/operation/pull/9
 
 -- Xinyu Gao --
-Created PR:
-Approved PR:
+Created PR: https://github.com/remla25-team8/operation/pull/11
+Approved PR: I was supposed to approve pull 10 but somehow it was not taken into account.
 
 -- Todor Mladenovic --
 Created PR:
