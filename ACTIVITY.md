@@ -53,8 +53,8 @@ Approved PR:
 
 ### Cristian
 
-Created PR: https://github.com/remla25-team8/model-service/pull/1
-Approved PR: https://github.com/remla25-team8/lib-ml/pull/2
+Created PR: https://github.com/remla25-team8/operation/pull/10
+Approved PR: https://github.com/remla25-team8/operation/pull/9
 
 ### Todor
 
