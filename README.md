@@ -56,5 +56,17 @@ Significant progress has been made across various repositories:
 - **App**: A Dockerized web application built with JavaScript for the frontend and Flask for the backend.
 - **Operation**: Established as the central repository for deployment and operation, including Docker Compose file for easy startup and README.md for detailed documentation.
 
+### Assignment A2
+All the steps up to and including step 22 are working. To test them out simply run:
+```bash
+vagrant up
+```
+
+After the inital setup is complete, you can finalize with the command:
+```bash
+ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
+```
+
+When this playbook is complete it will give you the instructions for setting up the dashboard.
 
 
