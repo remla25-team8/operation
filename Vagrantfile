@@ -1,5 +1,5 @@
   WORKER_COUNT = 1        # Number of workers within cluster
-  MEMORY_CONTROLLER = 4096 # Controller memory (MB)
+  MEMORY_CONTROLLER = 6144 # Controller memory (MB)
   MEMORY_WORKER = 6144     # Workers memory (MB for each worker)
   CPU_CONTROLLER = 2       # Controller CPU cores
   CPU_WORKER = 2           # Worker CPU cores (each)
@@ -8,7 +8,7 @@
     config.vm.box = "bento/ubuntu-24.04"
     
     # Controller node - set it as primary to ensure it's created first
-    config.vm.define "ctrl", primary: true do |ctrl|
+    config.vm.define "ctrl" do |ctrl|
       ctrl.vm.hostname = "ctrl"
       ctrl.vm.network "private_network", ip: "192.168.56.100"
       ctrl.vm.provider "virtualbox" do |vb|

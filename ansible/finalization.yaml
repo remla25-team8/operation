@@ -4,19 +4,32 @@
 
 - hosts: all
   become: true
-  pre_tasks:
-    - name: Ensure required Ansible collections are installed
-      ansible.builtin.pip:
-        name:
-          - kubernetes
-          - PyYAML
-        state: present
-      become: true
+  # pre_tasks:
+  #   - name: Install Python dependencies
+  #     ansible.builtin.apt:
+  #       name:
+  #         - python3-pip
+  #         - python3.12-venv
+  #         - python3-kubernetes
+  #         - python3-yaml
+  #       state: present
+  #       update_cache: yes
+  #     become: true
 
-    - name: Install Ansible Kubernetes collection
-      ansible.builtin.command: ansible-galaxy collection install kubernetes.core
-      changed_when: false
-  
+  #   - name: Create Python virtual environment
+  #     ansible.builtin.command: python3 -m venv /tmp/k8s_venv
+  #     args:
+  #       creates: /tmp/k8s_venv
+  #     become: true
+      
+  #   - name: Install required Python packages in virtual environment
+  #     ansible.builtin.shell: /tmp/k8s_venv/bin/pip install kubernetes PyYAML
+  #     become: true
+      
+  #   - name: Set fact for Python interpreter path
+  #     ansible.builtin.set_fact:
+  #       ansible_python_interpreter: /tmp/k8s_venv/bin/python
+
   tasks:
     # Step 20: Install MetalLB
     - name: Download MetalLB manifests

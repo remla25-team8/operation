@@ -4,9 +4,9 @@
   gather_facts: yes
   become: true
   tasks:
-    - name: Mark controller_pinger.yaml execution (STEP 3 RUNNING)
+    - name: Mark controller_pinger.yaml execution 
       ansible.builtin.debug:
-        msg: "*** CONTROLLER_PINGER.YAML PLAYBOOK STARTED - STEP 3 ***"
+        msg: "*** CONTROLLER_PINGER.YAML PLAYBOOK STARTED***"
 
     - name: Get list of worker nodes
       ansible.builtin.set_fact:
@@ -29,7 +29,20 @@
       ansible.builtin.debug:
         var: ping_result
         verbosity: 0
-        
+    
+    - name: Ping host machine
+      ansible.builtin.shell: |
+        echo "Attempting to ping host machine at 192.168.56.1"
+        ping -c 5 192.168.56.1
+      register: host_ping_result
+      changed_when: false
+      ignore_errors: true
+      
+    - name: Display host ping results
+      ansible.builtin.debug:
+        msg: "Host ping results: {{ 'Successful' if host_ping_result.rc == 0 else 'Failed' }}"
+        verbosity: 0
+
     - name: Check if API server is running
       ansible.builtin.shell: |
         curl -k https://localhost:6443/healthz
@@ -41,7 +54,7 @@
       ansible.builtin.debug:
         msg: "API server health check: {{ api_health_check.stdout | default('Failed, not running') }}"
 
-    - name: Mark controller_pinger.yaml completion (STEP 3 COMPLETE)
+    - name: Mark controller_pinger.yaml completion 
       ansible.builtin.debug:
-        msg: "*** CONTROLLER_PINGER.YAML PLAYBOOK COMPLETED - STEP 3 ***"
+        msg: "*** CONTROLLER_PINGER.YAML PLAYBOOK COMPLETED ***"
     

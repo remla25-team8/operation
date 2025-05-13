@@ -16,16 +16,20 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install common packages
+    - name: Install common packages individually
       apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
-          - lsb-release
-          - python3-pip
+        name: "{{ item }}"
         state: present
+        update_cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+        # - python3-pip
+      async: 500
+      poll: 5
 
     - name: Generate Ansible inventory file # from templates/inventory.cfg.j2
       template:
