@@ -72,16 +72,10 @@
     - name: Configure Flannel CNI
       block:
         - name: Download Flannel manifest
-          ansible.builtin.get_url:
-            url: https://raw.githubusercontent.com/flannel-io/flannel/v0.26.7/Documentation/kube-flannel.yml
+          ansible.builtin.copy:
+            src: kube-flannel.yml
             dest: /tmp/kube-flannel.yml
             mode: '0644'
-
-        - name: Insert --iface=eth1 after --kube-subnet-mgr in Flannel config
-          ansible.builtin.replace:
-            path: /tmp/kube-flannel.yml
-            regexp: '(^\s*- --kube-subnet-mgr\s*$)'
-            replace: '\1\n        - --iface=eth1'
 
         - name: Apply Flannel CNI
           ansible.builtin.command: kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
@@ -95,9 +89,11 @@
 
     - name: Add Helm repository
       ansible.builtin.apt_repository:
-        repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
-        state: present
+        repo: >
+          deb [signed-by=/etc/apt/trusted.gpg] 
+          https://baltocdn.com/helm/stable/debian/ all main /
         filename: helm-stable
+        state: present
 
     - name: Install Helm
       ansible.builtin.apt:
