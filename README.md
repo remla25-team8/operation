@@ -57,6 +57,7 @@ Significant progress has been made across various repositories:
 - **Operation**: Established as the central repository for deployment and operation, including Docker Compose file for easy startup and README.md for detailed documentation.
 
 ### Assignment A2
+You need to have ansible installed. 
 All the steps up to and including step 22 are working. To test them out simply run:
 ```bash
 vagrant up
