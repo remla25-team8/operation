@@ -1,0 +1,13 @@
+---
+# Main playbook that handles all the steps in the correct sequence
+- name: 1. General setup and controller node setup
+  import_playbook: base_setup.yaml
+  # This playbook should target controller hosts
+
+- name: 2. Controller pings worker nodes
+  import_playbook: controller_pinger.yaml
+  # This playbook should target controller hosts
+
+- name: 3. Join worker nodes to the cluster
+  import_playbook: node.yaml
+  # This playbook should target worker hosts

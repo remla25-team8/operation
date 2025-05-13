@@ -1,8 +1,8 @@
   WORKER_COUNT = 1        # Number of workers within cluster
-  MEMORY_CONTROLLER = 10240 # 4096 # Controller memory (MB)
-  MEMORY_WORKER = 10240 # 6144     # Workers memory (MB for each worker)
-  CPU_CONTROLLER = 4 # 2       # Controller CPU cores
-  CPU_WORKER = 4 # 2           # Worker CPU cores (each)
+  MEMORY_CONTROLLER = 4096 # Controller memory (MB)
+  MEMORY_WORKER = 6144     # Workers memory (MB for each worker)
+  CPU_CONTROLLER = 2       # Controller CPU cores
+  CPU_WORKER = 2           # Worker CPU cores (each)
 
   Vagrant.configure("2") do |config|
     config.vm.box = "bento/ubuntu-24.04"
@@ -29,7 +29,7 @@
       end
     end
 
-    # Create common Ansible groups and vars that will be used for all provisioners
+    # Create Ansible groups and vars
     ansible_groups = {
       "controller" => ["ctrl"],
       "worker" => (1..WORKER_COUNT).map { |j| "node-#{j}" },
@@ -44,44 +44,13 @@
       cpu_worker: CPU_WORKER
     }
     
-    # Step 1: Setup the controller node
-    config.vm.define "ctrl" do |ctrl|
-      ctrl.vm.provision "ansible" do |ansible|
-        ansible.playbook = "ansible/setup-controller.yaml"
-        ansible.groups = ansible_groups
-        ansible.extra_vars = ansible_vars
-      end
-    end
-    
-    # Step 2: General setup for worker nodes
-    (1..WORKER_COUNT).each do |i|
-      config.vm.define "node-#{i}" do |node|
-        node.vm.provision "ansible" do |ansible|
-          ansible.playbook = "ansible/general.yaml"
-          ansible.groups = ansible_groups
-          ansible.extra_vars = ansible_vars
-        end
-      end
-    end
-
-    # Step 3: Controller pings worker nodes
-    config.vm.define "ctrl" do |ctrl|
-      ctrl.vm.provision "ansible" do |ansible|
-        ansible.playbook = "ansible/controller_pinger.yaml"
-        ansible.groups = ansible_groups
-        ansible.extra_vars = ansible_vars
-      end
-    end
-    
-    # Step 4: Join worker nodes to the cluster
-    (1..WORKER_COUNT).each do |i|
-      config.vm.define "node-#{i}" do |node|
-        node.vm.provision "ansible" do |ansible|
-          ansible.playbook = "ansible/node.yaml"
-          ansible.groups = ansible_groups
-          ansible.extra_vars = ansible_vars
-        end
-      end
+    # Single provisioner that runs after all machines are created
+    # This will execute our main playbook that handles all the steps in sequence
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "ansible/main-playbook.yaml"
+      ansible.groups = ansible_groups
+      ansible.extra_vars = ansible_vars
+      ansible.limit = "all"
     end
   end
 
