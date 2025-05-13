@@ -1,0 +1,194 @@
+---
+- name: Configure Kubernetes controller node
+  hosts: controller
+  become: true
+
+  tasks:
+    # Check for existing cluster
+    - name: Check if admin.conf exists
+      ansible.builtin.stat:
+        path: /etc/kubernetes/admin.conf
+      register: kube_config
+
+    # Cleanup only if needed
+    - name: Conditional reset
+      ansible.builtin.command: kubeadm reset -f
+      when: 
+        - not kube_config.stat.exists
+        - "'controller' in group_names"
+      ignore_errors: yes
+      register: reset_result
+      changed_when: reset_result.rc == 0
+
+    # Step 13
+    - name: Initialize Kubernetes cluster
+      ansible.builtin.command: >
+        kubeadm init
+        --apiserver-advertise-address=192.168.56.100
+        --node-name=ctrl
+        --pod-network-cidr=10.244.0.0/16
+      when: not kube_config.stat.exists
+      register: init_result
+
+    # Verification point
+    - name: Verify cluster is ready
+      block:
+        - name: Check admin.conf exists
+          ansible.builtin.stat:
+            path: /etc/kubernetes/admin.conf
+          register: cluster_ready
+          until: cluster_ready.stat.exists
+      when: init_result is succeeded or kube_config.stat.exists
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false   
+
+    # Step 14 - Kubectl configuration
+    - name: Setup kubectl configuration
+      block:
+        - name: Create .kube directory
+          ansible.builtin.file:
+            path: /home/vagrant/.kube
+            state: directory
+            owner: vagrant
+            group: vagrant
+            mode: '0755'
+
+        - name: Copy admin.conf for user
+          ansible.builtin.copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /home/vagrant/.kube/config
+            remote_src: yes
+            owner: vagrant
+            group: vagrant
+            mode: '0600'
+
+        - name: Share config with host
+          ansible.builtin.copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /vagrant/admin.conf
+            remote_src: yes
+            mode: '0644'
+      when: cluster_ready.stat.exists
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false
+
+    #Step 15
+    - name: Configure Flannel CNI
+      block:
+        - name: Download Flannel manifest
+          ansible.builtin.copy:
+            src: kube-flannel.yml
+            dest: /tmp/kube-flannel.yml
+            mode: '0644'
+
+        - name: Apply Flannel CNI
+          ansible.builtin.command: kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
+      when: cluster_ready.stat.exists
+
+    # Verify Flannel is working
+    - name: Wait for Flannel pods to be running
+      ansible.builtin.shell: |
+        kubectl --kubeconfig=/etc/kubernetes/admin.conf get pods -n kube-flannel -o custom-columns=STATUS:.status.phase --no-headers | grep -c "Running" | grep -q "^[1-9]"
+      register: flannel_check
+      until: flannel_check.rc == 0
+      retries: 12
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false
+      ignore_errors: true
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false
+
+
+    # Step 16 - Helm installation
+    - name: Add Helm GPG key
+      ansible.builtin.apt_key:
+        url: https://baltocdn.com/helm/signing.asc
+        state: present
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false        
+
+    - name: Add Helm repository
+      ansible.builtin.apt_repository:
+        repo: >
+          deb [signed-by=/etc/apt/trusted.gpg] 
+          https://baltocdn.com/helm/stable/debian/ all main /
+        filename: helm-stable
+        state: present
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+
+    - name: Install Helm
+      ansible.builtin.apt:
+        name: helm
+        state: present
+        update_cache: yes
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false    
+
+    # Step 17
+    - name: Install helm-diff plugin
+      ansible.builtin.command: helm plugin install https://github.com/databus23/helm-diff
+      args:
+        creates: /home/vagrant/.local/share/helm/plugins/helm-diff
+      become_user: vagrant
+      environment:
+        # Prevent Helm from using Kubernetes config during plugin install
+        KUBECONFIG: ""
+        HELM_KUBECONFIG: ""
+    
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false    

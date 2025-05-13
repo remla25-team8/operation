@@ -1,0 +1,204 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Get hostname
+      command: hostname
+      register: hostname_result
+      changed_when: false # Rende il task idempotente
+
+    - name: Display hostname
+      debug:
+        msg: "Current hostname is: {{ hostname_result.stdout }}"
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install common packages individually
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+        # - python3-pip
+      async: 500
+      poll: 5
+
+    - name: Generate Ansible inventory file # from templates/inventory.cfg.j2
+      template:
+        src: inventory.cfg.j2
+        dest: /home/vagrant/inventory.cfg
+        owner: vagrant
+        group: vagrant
+        mode: "0644"
+      when: inventory_hostname == groups['controller'][0]
+
+    # Step 8 (to complete and test)
+    - name: Configure /etc/hosts file # from templates/hosts.j2
+      template:
+        src: hosts.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: "0644"
+
+    # Step 4: Register SSH Keys
+    - name: Ensure .ssh directory exists
+      file:
+        path: /home/vagrant/.ssh
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: "0700"
+
+    - name: Add SSH public keys
+      authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      with_items:
+        - "files/ssh_keys/lorenzo.pub"
+        - "files/ssh_keys/yongcheng.pub"
+        - "files/ssh_keys/xin.pub"
+        - "files/ssh_keys/todor.pub"
+        # Add your public ssh keys (at least two)
+
+    # Step 5: Disable SWAP
+    - name: Disable SWAP for current session
+      ansible.builtin.shell:
+        cmd: swapoff -a
+      changed_when: false
+      failed_when: false
+
+    - name: Remove SWAP entry from /etc/fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^[^#].*\sswap\s'
+        state: absent
+
+    - name: Create k8s.conf for module loading
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        mode: '0644'
+      register: k8s_conf
+
+    - name: Load modules
+      community.general.modprobe:
+        name: "{{ item }}"
+      loop:
+        - br_netfilter
+        - overlay
+      when: k8s_conf.changed
+
+    - name: Enable IPv4 forwarding and bridge filtering
+      ansible.builtin.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        reload: yes
+      with_items:
+        - { name: 'net.ipv4.ip_forward', value: '1' }
+        - { name: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+        - { name: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+
+    - name: Add Kubernetes apt key
+      ansible.builtin.apt_key:
+        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        state: present
+        keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+        state: present
+        filename: kubernetes
+        update_cache: yes
+
+    - name: Install containerd, runc, and Kubernetes tools
+      ansible.builtin.apt:
+        name:
+          - containerd=1.7.24-0ubuntu1~24.04.2
+          - runc=1.1.12-0ubuntu3.1
+          - kubeadm=1.32.4-*
+          - kubelet=1.32.4-*
+          - kubectl=1.32.4-*
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Hold Kubernetes packages to prevent upgrades
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+        - containerd
+        - runc
+
+    - name: Configure containerd
+      block:
+        - name: Ensure /etc/containerd directory exists
+          ansible.builtin.file:
+            path: /etc/containerd
+            state: directory
+            mode: '0755'
+
+        - name: Check if containerd config exists
+          ansible.builtin.stat:
+            path: /etc/containerd/config.toml
+          register: config_file
+
+        - name: Generate default containerd configuration
+          ansible.builtin.command: containerd config default
+          args:
+            creates: /etc/containerd/config.toml
+          register: containerd_default_cfg
+          when: not config_file.stat.exists
+
+        - name: Write default config to /etc/containerd/config.toml
+          ansible.builtin.copy:
+            content: "{{ containerd_default_cfg.stdout }}"
+            dest: /etc/containerd/config.toml
+          when: 
+            - not config_file.stat.exists
+            - containerd_default_cfg.stdout is defined
+
+        - name: Update containerd config.toml
+          ansible.builtin.replace:
+            path: /etc/containerd/config.toml
+            regexp: '^(\s*){{ item.key }}\s*=.*$'
+            replace: '\1{{ item.key }} = {{ item.value }}'
+          loop:
+            - { key: "disable_apparmor", value: "true" }
+            - { key: "sandbox_image", value: '"registry.k8s.io/pause:3.10"' }
+            - { key: "SystemdCgroup", value: "true" }
+
+      always:
+        - name: Reload systemd to pick up config changes
+          ansible.builtin.systemd:
+            daemon_reload: yes
+          when: config_file.stat.exists or (containerd_default_cfg is defined and containerd_default_cfg.changed)
+
+        - name: Restart containerd
+          ansible.builtin.service:
+            name: containerd
+            state: restarted
+          when: config_file.stat.exists or (containerd_default_cfg is defined and containerd_default_cfg.changed)
+
+    - name: Enable and start kubelet service
+      ansible.builtin.service:
+        name: kubelet
+        state: started
+        enabled: yes

@@ -1,0 +1,60 @@
+---
+- name: Controller pings worker nodes to establish TCP connections
+  hosts: controller
+  gather_facts: yes
+  become: true
+  tasks:
+    - name: Mark controller_pinger.yaml execution 
+      ansible.builtin.debug:
+        msg: "*** CONTROLLER_PINGER.YAML PLAYBOOK STARTED***"
+
+    - name: Get list of worker nodes
+      ansible.builtin.set_fact:
+        worker_nodes: "{{ groups['worker'] }}"
+      
+    - name: Display worker nodes to ping
+      ansible.builtin.debug:
+        msg: "Will establish connections to workers: {{ worker_nodes }}"
+    
+    - name: Ping each worker node to establish TCP connection
+      ansible.builtin.shell: |
+        echo "Establishing connection to worker node {{ item }}"
+        ping -c 5 192.168.56.{{ 100 + worker_nodes.index(item) + 1 }}
+      register: ping_result
+      with_items: "{{ worker_nodes }}"
+      changed_when: false
+      ignore_errors: true
+      
+    - name: Display ping results
+      ansible.builtin.debug:
+        var: ping_result
+        verbosity: 0
+    
+    - name: Ping host machine
+      ansible.builtin.shell: |
+        echo "Attempting to ping host machine at 192.168.56.1"
+        ping -c 5 192.168.56.1
+      register: host_ping_result
+      changed_when: false
+      ignore_errors: true
+      
+    - name: Display host ping results
+      ansible.builtin.debug:
+        msg: "Host ping results: {{ 'Successful' if host_ping_result.rc == 0 else 'Failed' }}"
+        verbosity: 0
+
+    - name: Check if API server is running
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      changed_when: false
+      ignore_errors: true
+      
+    - name: Display API server status
+      ansible.builtin.debug:
+        msg: "API server health check: {{ api_health_check.stdout | default('Failed, not running') }}"
+
+    - name: Mark controller_pinger.yaml completion 
+      ansible.builtin.debug:
+        msg: "*** CONTROLLER_PINGER.YAML PLAYBOOK COMPLETED ***"
+    

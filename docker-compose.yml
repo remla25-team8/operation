@@ -1,0 +1,39 @@
+services:
+  app-service:
+    image: ${APP_SERVICE_IMAGE}:${APP_SERVICE_VERSION}
+    ports:
+      - "${APP_SERVICE_PORT}:${APP_SERVICE_PORT}"
+    environment:
+      - MODEL_SERVICE_URL=http://model-service:${MODEL_SERVICE_PORT}
+      - PORT=${APP_SERVICE_PORT}
+      - APP_VERSION=${APP_SERVICE_VERSION}
+      - MODEL_SERVICE_VERSION=${MODEL_SERVICE_VERSION}
+    volumes:
+      - .:/root/mount
+    restart: always
+    depends_on:
+      - model-service
+    networks:
+      - frontend
+      - backend
+
+  model-service:
+    image: ${MODEL_SERVICE_IMAGE}:${MODEL_SERVICE_VERSION}
+    # No ports exposed to host so it cannot access the model service
+    environment:
+      - FLASK_ENV=production
+      - PORT=${MODEL_SERVICE_PORT}
+      - HOST=0.0.0.0
+    volumes:
+      - .:/root/mount
+    restart: always
+    networks:
+      - backend
+
+networks:
+  frontend:
+    # External facing network
+    driver: bridge
+  backend:
+    # Network for internal communication (it allows internet access from host)
+    driver: bridge
