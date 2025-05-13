@@ -40,6 +40,16 @@
           until: cluster_ready.stat.exists
       when: init_result is succeeded or kube_config.stat.exists
 
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false   
+
     # Step 14 - Kubectl configuration
     - name: Setup kubectl configuration
       block:
@@ -68,6 +78,16 @@
             mode: '0644'
       when: cluster_ready.stat.exists
 
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false
+
     #Step 15
     - name: Configure Flannel CNI
       block:
@@ -81,11 +101,44 @@
           ansible.builtin.command: kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/kube-flannel.yml
       when: cluster_ready.stat.exists
 
+    # Verify Flannel is working
+    - name: Wait for Flannel pods to be running
+      ansible.builtin.shell: |
+        kubectl --kubeconfig=/etc/kubernetes/admin.conf get pods -n kube-flannel -o custom-columns=STATUS:.status.phase --no-headers | grep -c "Running" | grep -q "^[1-9]"
+      register: flannel_check
+      until: flannel_check.rc == 0
+      retries: 12
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false
+      ignore_errors: true
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false
+
+
     # Step 16 - Helm installation
     - name: Add Helm GPG key
       ansible.builtin.apt_key:
         url: https://baltocdn.com/helm/signing.asc
         state: present
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false        
 
     - name: Add Helm repository
       ansible.builtin.apt_repository:
@@ -95,11 +148,29 @@
         filename: helm-stable
         state: present
 
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+
     - name: Install Helm
       ansible.builtin.apt:
         name: helm
         state: present
         update_cache: yes
+
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false    
 
     # Step 17
     - name: Install helm-diff plugin
@@ -107,3 +178,17 @@
       args:
         creates: /home/vagrant/.local/share/helm/plugins/helm-diff
       become_user: vagrant
+      environment:
+        # Prevent Helm from using Kubernetes config during plugin install
+        KUBECONFIG: ""
+        HELM_KUBECONFIG: ""
+    
+    - name: Wait for API server to become responsive
+      ansible.builtin.shell: |
+        curl -k https://localhost:6443/healthz
+      register: api_health_check
+      until: api_health_check.stdout == "ok"
+      retries: 10
+      delay: 10
+      when: cluster_ready.stat.exists
+      changed_when: false    

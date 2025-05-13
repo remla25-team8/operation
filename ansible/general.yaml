@@ -16,16 +16,20 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install common packages
+    - name: Install common packages individually
       apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
-          - lsb-release
-          - python3-pip
+        name: "{{ item }}"
         state: present
+        update_cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+        # - python3-pip
+      async: 500
+      poll: 5
 
     - name: Generate Ansible inventory file # from templates/inventory.cfg.j2
       template:
@@ -63,6 +67,7 @@
         - "files/ssh_keys/lorenzo.pub"
         - "files/ssh_keys/yongcheng.pub"
         - "files/ssh_keys/xin.pub"
+        - "files/ssh_keys/todor.pub"
         # Add your public ssh keys (at least two)
 
     # Step 5: Disable SWAP

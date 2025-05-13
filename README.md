@@ -17,8 +17,60 @@ This repository orchestrates the deployment of our Restaurant Sentiment Analysis
 
 ### Prerequisites
 
-- Docker
-- Docker compose
+- Docker (minimum version: 24.0.0)
+- Docker Compose (minimum version: 2.20.0)
+- Vagrant (minimum version: 2.4.0)
+- Ansible (minimum version: 8.0.0)
+- SSH key pair (for accessing private repositories)
+
+### SSH Key Setup
+
+1. Generate an SSH key pair if you don't have one:
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   ```
+
+2. Add your public key to the project:
+   - Copy your public key (usually `~/.ssh/id_ed25519.pub`) to the `ansible/keys` directory
+   - Rename it to `id_ed25519.pub` if it's not already named that
+   - Ensure the key has the correct permissions:
+     ```bash
+     chmod 644 ansible/keys/id_ed25519.pub
+     ```
+
+3. Update the SSH key path in `ansible/group_vars/all/general.yaml`:
+   ```yaml
+   ssh_public_key_path: "{{ playbook_dir }}/keys/id_ed25519.pub"
+   ```
+
+4. Add your public key to your GitHub account:
+   - Copy the contents of your public key (usually `~/.ssh/id_ed25519.pub`)
+   - Go to GitHub → Settings → SSH and GPG keys → New SSH key
+   - Paste your public key and save
+
+Note: Never share or commit your private key. Keep it secure on your local machine only.
+
+### Low Requirements Testing
+
+For testing with minimal requirements, we provide a bash script that sets up a basic environment. This is useful for quick testing or when you don't want to use the full Vagrant/Ansible setup.
+
+1. Make the script executable:
+   ```bash
+   chmod +x scripts/low_requirements_test.sh
+   ```
+
+2. Run the script:
+   ```bash
+   ./scripts/low_requirements_test.sh
+   ```
+
+The script will:
+- Check for required dependencies
+- Set up a minimal Docker environment
+- Start the essential services
+- Provide instructions for accessing the application
+
+Note: This setup is for testing purposes only and doesn't include all features of the full deployment.
 
 ### Running the Application
 
@@ -56,5 +108,18 @@ Significant progress has been made across various repositories:
 - **App**: A Dockerized web application built with JavaScript for the frontend and Flask for the backend.
 - **Operation**: Established as the central repository for deployment and operation, including Docker Compose file for easy startup and README.md for detailed documentation.
 
+### Assignment A2
+You need to have ansible installed. 
+All the steps up to and including step 22 are working. To test them out simply run:
+```bash
+vagrant up
+```
+
+After the inital setup is complete, you can finalize with the command:
+```bash
+ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
+```
+
+When this playbook is complete it will give you the instructions for setting up the dashboard.
 
 

@@ -1,0 +1,13 @@
+---
+# Main playbook that handles all the steps in the correct sequence (Both controller and worker nodes)
+- name: 1. General base setup
+  import_playbook: base_setup.yaml
+
+# Only for controller node. This needs to happen before the worker nodes join the cluster and after 
+# base_setup.yaml is complete for all nodes.
+- name: 2. Controller pings worker nodes
+  import_playbook: controller_pinger.yaml
+
+# Only for worker nodes
+- name: 3. Join worker nodes to the cluster
+  import_playbook: node.yaml
