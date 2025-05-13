@@ -4,32 +4,8 @@
 
 - hosts: all
   become: true
-  # pre_tasks:
-  #   - name: Install Python dependencies
-  #     ansible.builtin.apt:
-  #       name:
-  #         - python3-pip
-  #         - python3.12-venv
-  #         - python3-kubernetes
-  #         - python3-yaml
-  #       state: present
-  #       update_cache: yes
-  #     become: true
-
-  #   - name: Create Python virtual environment
-  #     ansible.builtin.command: python3 -m venv /tmp/k8s_venv
-  #     args:
-  #       creates: /tmp/k8s_venv
-  #     become: true
-      
-  #   - name: Install required Python packages in virtual environment
-  #     ansible.builtin.shell: /tmp/k8s_venv/bin/pip install kubernetes PyYAML
-  #     become: true
-      
-  #   - name: Set fact for Python interpreter path
-  #     ansible.builtin.set_fact:
-  #       ansible_python_interpreter: /tmp/k8s_venv/bin/python
-
+  vars:
+    kubeconfig: /etc/kubernetes/admin.conf
   tasks:
     # Step 20: Install MetalLB
     - name: Download MetalLB manifests
@@ -42,9 +18,10 @@
       kubernetes.core.k8s:
         state: present
         src: /tmp/metallb-native-0.14.9.yml
+        kubeconfig: "{{ kubeconfig }}"
 
     - name: Wait for MetalLB controller to be ready
-      shell: kubectl wait -n metallb-system -l app=metallb,component=controller --for=condition=ready pod --timeout=60s
+      shell: kubectl --kubeconfig={{ kubeconfig }} wait -n metallb-system -l app=metallb,component=controller --for=condition=ready pod --timeout=60s
       changed_when: false
 
     - name: Create MetalLB IP address pool
@@ -59,6 +36,7 @@
           spec:
             addresses:
               - 192.168.56.90-192.168.56.99
+        kubeconfig: "{{ kubeconfig }}"
 
     - name: Create MetalLB L2 advertisement
       kubernetes.core.k8s:
@@ -72,12 +50,14 @@
           spec:
             ipAddressPools:
               - first-pool
+        kubeconfig: "{{ kubeconfig }}"
 
     # Step 21: Install Nginx Ingress Controller
     - name: Add Nginx Ingress Helm repository
       kubernetes.core.helm_repository:
         name: ingress-nginx
         repo_url: https://kubernetes.github.io/ingress-nginx
+        kubeconfig: "{{ kubeconfig }}"  
 
     - name: Install Nginx Ingress Controller
       kubernetes.core.helm:
@@ -85,6 +65,7 @@
         chart_ref: ingress-nginx/ingress-nginx
         release_namespace: ingress-nginx
         create_namespace: true
+        kubeconfig: "{{ kubeconfig }}" 
         values:
           controller:
             service:
@@ -95,13 +76,54 @@
       kubernetes.core.helm_repository:
         name: kubernetes-dashboard
         repo_url: https://kubernetes.github.io/dashboard
+        kubeconfig: "{{ kubeconfig }}"  
 
-    - name: Install Kubernetes Dashboard
+    - name: Create kubernetes-dashboard namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: kubernetes-dashboard
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Create Kong configuration ConfigMap
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kong-config
+            namespace: kubernetes-dashboard
+          data:
+            KONG_SSL: "on"
+            KONG_SSL_CERT: "/etc/secrets/tls.crt"
+            KONG_SSL_CERT_KEY: "/etc/secrets/tls.key"
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Install Kubernetes Dashboard with Kong configuration
       kubernetes.core.helm:
         name: kubernetes-dashboard
         chart_ref: kubernetes-dashboard/kubernetes-dashboard
         release_namespace: kubernetes-dashboard
-        create_namespace: true
+        create_namespace: false
+        kubeconfig: "{{ kubeconfig }}"
+        values:
+          kong:
+            enabled: true
+            env:
+              KONG_SSL: "on"
+              KONG_SSL_CERT: "/etc/secrets/tls.crt"
+              KONG_SSL_CERT_KEY: "/etc/secrets/tls.key"
+            service:
+              type: LoadBalancer
+              ports:
+                kong-proxy-tls:
+                  port: 443
+                  targetPort: 8443
+                  protocol: TCP
 
     - name: Create admin user for Dashboard
       kubernetes.core.k8s:
@@ -112,6 +134,7 @@
           metadata:
             name: admin-user
             namespace: kubernetes-dashboard
+        kubeconfig: "{{ kubeconfig }}"
 
     - name: Create cluster role binding for admin user
       kubernetes.core.k8s:
@@ -129,6 +152,7 @@
           - kind: ServiceAccount
             name: admin-user
             namespace: kubernetes-dashboard
+        kubeconfig: "{{ kubeconfig }}"
 
     - name: Create Ingress for Kubernetes Dashboard
       kubernetes.core.k8s:
@@ -141,8 +165,13 @@
             namespace: kubernetes-dashboard
             annotations:
               nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+              nginx.ingress.kubernetes.io/ssl-redirect: "true"
+              nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
           spec:
             ingressClassName: nginx
+            tls:
+            - hosts:
+              - dashboard.local
             rules:
             - host: dashboard.local
               http:
@@ -151,9 +180,14 @@
                   pathType: Prefix
                   backend:
                     service:
-                      name: kubernetes-dashboard
+                      name: kubernetes-dashboard-kong-proxy
                       port:
                         number: 443
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Wait for Kong proxy to be ready
+      shell: kubectl --kubeconfig={{ kubeconfig }} wait -n kubernetes-dashboard -l app.kubernetes.io/name=kong --for=condition=ready pod --timeout=120s
+      changed_when: false
 
     - name: Instructions to access Dashboard
       debug:
@@ -161,4 +195,5 @@
           - "Dashboard has been deployed. To access it:"
           - "1. Add 'dashboard.local' to your hosts file pointing to 192.168.56.90"
           - "2. Run this command to get a login token: kubectl -n kubernetes-dashboard create token admin-user"
-          - "3. Access the dashboard at http://dashboard.local"
+          - "3. Access the dashboard at https://dashboard.local (note: using HTTPS)"
+          - "4. You may need to accept the self-signed certificate warning in your browser"
