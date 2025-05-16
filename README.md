@@ -80,9 +80,64 @@ Note: This setup is for testing purposes only and doesn't include all features o
    cd operation
    ```
 
-2. Start all services
+2. Start the Kubernetes environment
     ```bash
-    docker compose up -d
+    vagrant up
+    vagrant ssh ctrl
+   ```
+
+3. Inside the VM (ctrl), deploy the app:
+    ```bash
+      cd /vagrant/k8s
+
+      # Create the required secret (required only the first time)
+      kubectl create secret generic app-secrets \
+      --from-literal=SMTP_PASSWORD=your-actual-password \
+      --dry-run=client -o yaml > k8s/secret.yaml
+
+      # Apply all Kubernetes manifests
+      kubectl apply -f .
+
+      # Install NGINX Ingress Controller
+      kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
+
+      # Patch for Vagrant
+      kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec":{"type":"NodePort"}'
+
+   ```
+
+4. Check deployment status:
+    ```bash
+      kubectl get pods -n ingress-nginx  # Should show Running status   
+   ```
+
+5. Access the application:
+    ```bash
+
+      # Some options require access via your NodePort (3XXXX), command to find the NodePort: 
+      kubectl get svc -n ingress-nginx
+
+      # Option 1 (on browser), where 3XXXX (is the NodePort) 
+      http://myapp.local:3XXXX/
+
+      # Option 2: 
+
+      # Port-Forward to a Pod 
+      kubectl port-forward deployment/app-service 8080:8080     
+      # Then access
+      curl http://localhost:8080
+
+      # Option 3:
+      curl http://192.168.56.100:3XXXX  
+   ```
+
+6. Clean up:
+    ```bash
+      # Delete deployment
+      kubectl delete -f .
+
+      # Destroy Vagrant environment (from host)
+      vagrant destroy -f   
    ```
 
 ## Code Structure

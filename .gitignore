@@ -4,6 +4,7 @@
 
 ### Kubernetes kubeconfig ###
 admin.conf
+secret.yaml
 
 ### macOS ###
 # General
