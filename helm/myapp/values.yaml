@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: myapp
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+namePrefix: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+service:
+  name: model-service
+  port: 8080
+  targetPort: 8080
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  host: ""
+  path: /
+
+configMap:
+  modelServiceUrl: http://model-service:8080
+
+secret:
+  smtpPassword: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 200m
+  #   memory: 256Mi
