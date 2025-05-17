@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: myapp
-  tag: "latest"
+  repository: d4vidhuang/remla25-team8-app
+  tag: "1.1.0"
   pullPolicy: IfNotPresent
 
 namePrefix: ""
