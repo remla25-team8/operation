@@ -27,6 +27,24 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     # Other annotations as needed
 
+# Metrics configuration
+metrics:
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    scrapeTimeout: 10s
+    additionalLabels:
+      release: prometheus  # This is important for Prometheus Operator to discover the ServiceMonitor
+
+# Prometheus ingress configuration
+prometheus:
+  ingress:
+    enabled: true
+    className: nginx
+    host: prometheus.local  # You can modify this to any domain you want
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
 configMap:
   modelServiceUrl: http://model-service:8080
 

@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         {{- include "myapp.labels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.service.targetPort }}"
     spec:
       containers:
         - name: {{ .Chart.Name }}
@@ -20,6 +24,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
+              name: http
           env:
             - name: MODEL_SERVICE_URL
               valueFrom:
