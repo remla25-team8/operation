@@ -1,11 +1,14 @@
   WORKER_COUNT = 1        # Number of workers within cluster
-  MEMORY_CONTROLLER = 6144 # Controller memory (MB)
-  MEMORY_WORKER = 6144     # Workers memory (MB for each worker)
-  CPU_CONTROLLER = 2       # Controller CPU cores
-  CPU_WORKER = 2           # Worker CPU cores (each)
+  MEMORY_CONTROLLER = 10240 #6144 # Controller memory (MB)
+  MEMORY_WORKER = 10240 # 6144     # Workers memory (MB for each worker)
+  CPU_CONTROLLER = 6 # 2       # Controller CPU cores
+  CPU_WORKER = 6 # 2           # Worker CPU cores (each)
 
   Vagrant.configure("2") do |config|
     config.vm.box = "bento/ubuntu-24.04"
+
+    # Sync host's ./shared folder to /shared in all VMs
+    config.vm.synced_folder "./shared", "/mnt/shared"
     
     # Controller node - set it as primary to ensure it's created first
     config.vm.define "ctrl" do |ctrl|
