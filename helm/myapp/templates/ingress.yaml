@@ -5,7 +5,12 @@ metadata:
   name: {{ include "myapp.fullname" . }}
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.className | default "nginx" }}
   rules:
     - host: {{ .Values.ingress.host | default (printf "%s.myapp.local" .Release.Name) }}
       http:

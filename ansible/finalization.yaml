@@ -213,3 +213,107 @@
           - "2. Run this command to get a login token: kubectl -n kubernetes-dashboard create token admin-user"
           - "3. Access the dashboard at https://dashboard.local (note: using HTTPS)"
           - "4. You may need to accept the self-signed certificate warning in your browser"
+
+    # Step 23: Install Istio using Helm
+    - name: Add Istio Helm repository
+      kubernetes.core.helm_repository:
+        name: istio
+        repo_url: https://istio-release.storage.googleapis.com/charts
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Create istio-system namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: istio-system
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Install Istio base chart (CRDs)
+      kubernetes.core.helm:
+        name: istio-base
+        chart_ref: istio/base
+        release_namespace: istio-system
+        create_namespace: false
+        kubeconfig: "{{ kubeconfig }}"
+        wait: true
+        chart_version: "1.25.2"
+
+    - name: Install Istio istiod (control plane)
+      kubernetes.core.helm:
+        name: istiod
+        chart_ref: istio/istiod
+        release_namespace: istio-system
+        create_namespace: false
+        kubeconfig: "{{ kubeconfig }}"
+        wait: true
+        chart_version: "1.25.2"
+
+    - name: Create istio-ingress namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: istio-ingress
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Install Istio ingress gateway
+      kubernetes.core.helm:
+        name: istio-ingress
+        chart_ref: istio/gateway
+        release_namespace: istio-ingress
+        create_namespace: false
+        kubeconfig: "{{ kubeconfig }}"
+        wait: true
+        chart_version: "1.25.2"
+
+    - name: Wait for Istio components to be ready
+      shell: kubectl --kubeconfig={{ kubeconfig }} wait --for=condition=ready pod -l app=istiod -n istio-system --timeout=120s
+      changed_when: false
+
+    - name: Instructions for Istio
+      debug:
+        msg:
+          - "Istio has been deployed using Helm according to the official documentation."
+          - "The control plane (istiod) is installed in istio-system namespace."
+          - "The ingress gateway is installed in istio-ingress namespace."
+
+    - name: Create monitoring namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: monitoring
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Add Prometheus Helm repo
+      kubernetes.core.helm_repository:
+        name: prometheus-community
+        repo_url: https://prometheus-community.github.io/helm-charts
+        
+    - name: Install Prometheus Stack
+      kubernetes.core.helm:
+        name: prometheus
+        chart_ref: prometheus-community/kube-prometheus-stack
+        release_namespace: monitoring
+        create_namespace: false
+        kubeconfig: "{{ kubeconfig }}"
+        wait: true
+
+    - name: Wait for Prometheus components to be ready
+      shell: kubectl --kubeconfig={{ kubeconfig }} wait --for=condition=ready pod -l app.kubernetes.io/name=prometheus -n monitoring --timeout=180s
+      changed_when: false
+
+    - name: Instructions for Prometheus
+      debug:
+        msg:
+          - "Prometheus has been deployed using Helm in the monitoring namespace"
+          - "The kube-prometheus-stack includes Prometheus, Alertmanager, and Grafana"
+          - "ServiceMonitor CRDs are now available for monitoring services"
+

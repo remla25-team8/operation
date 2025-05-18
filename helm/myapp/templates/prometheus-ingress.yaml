@@ -1,0 +1,27 @@
+{{- if .Values.prometheus.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-{{ include "myapp.fullname" . }}
+  namespace: monitoring
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    {{- with .Values.prometheus.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.prometheus.ingress.className | default "nginx" }}
+  rules:
+    - host: {{ .Values.prometheus.ingress.host | default (printf "prometheus-%s.local" .Release.Name) }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-kube-prometheus-prometheus
+                port:
+                  number: 9090
+{{- end }} 
