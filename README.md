@@ -93,7 +93,7 @@ Note: This setup is for testing purposes only and doesn't include all features o
       # Create the required secret (required only the first time)
       kubectl create secret generic app-secrets \
       --from-literal=SMTP_PASSWORD=your-actual-password \
-      --dry-run=client -o yaml > k8s/secret.yaml
+      --dry-run=client -o yaml > secret.yaml
 
       # Apply all Kubernetes manifests
       kubectl apply -f .
