@@ -72,6 +72,17 @@ The script will:
 
 Note: This setup is for testing purposes only and doesn't include all features of the full deployment.
 
+
+### Configuring Host Access
+
+Add the following entries to your local machine's `/etc/hosts` file:
+
+```bash
+192.168.56.90 myapp.local dashboard.local grafana.local prometheus.local
+```
+
+This will allow you to access the various web interfaces by hostname.
+
 ### Running the Application
 
 1. Clone this repository to your local machine.
@@ -82,10 +93,10 @@ Note: This setup is for testing purposes only and doesn't include all features o
 
 2. Start the Kubernetes environment
     ```bash
-      vagrant up
-      vagrant ssh ctrl
       # On host machine:
+      vagrant up
       ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
+      vagrant ssh ctrl
    ```
 
 3. Inside the VM (ctrl), deploy the app:
@@ -136,6 +147,35 @@ Note: This setup is for testing purposes only and doesn't include all features o
       # Destroy Vagrant environment (from host)
       vagrant destroy -f   
    ```
+
+### Accessing the Application
+
+After deployment, you can access the following services:
+
+* Web Application: http://myapp.local
+* Kubernetes Dashboard: https://dashboard.local
+* Grafana: http://grafana.local (credentials: admin/prom-operator)
+* Prometheus: http://prometheus.local
+
+#### Monitoring with Grafana
+Accessing Grafana Dashboard
+
+1. Make sure you've added grafana.local to your hosts file as described above
+2. Navigate to http://grafana.local in your browser
+3. Log in with default credentials: Username: admin Password: prom-operator
+4. Go to Dashboards → Browse to find the "Restaurant Sentiment Analysis Dashboard"
+
+#### Generating Test Data
+
+We provide scripts to generate test data for the dashboard:
+
+##### Using Bash (Linux/macOS)
+```bash
+./scripts/test-grafana-bash.sh 50 myapp.local
+```
+
+##### Using PowerShell (Windows)
+*coming soon*
 
 ## Assignment Progress Log
 
