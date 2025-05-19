@@ -65,6 +65,7 @@
         key: "{{ lookup('file', item) }}"
       with_items:
         - "files/ssh_keys/lorenzo.pub"
+        - "files/ssh_keys/lorenzo2.pub"
         - "files/ssh_keys/yongcheng.pub"
         - "files/ssh_keys/xin.pub"
         - "files/ssh_keys/todor.pub"
