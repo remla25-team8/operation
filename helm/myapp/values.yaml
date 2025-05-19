@@ -77,6 +77,26 @@ prometheus:
     annotations:
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
 
+# Grafana configuration
+grafana:
+  namespace: monitoring  # namespace where Grafana is deployed
+  dashboards:
+    enabled: true
+    additionalLabels:
+      grafana_dashboard: "1"
+      release: prometheus
+    annotations:
+      k8s-sidecar-target-directory: "/tmp/dashboards/restaurant-sentiment"
+  ingress:
+    enabled: true
+    host: grafana.myapp.local
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+
+
+
 configMap:
   modelServiceUrl: http://model-service:8080
 

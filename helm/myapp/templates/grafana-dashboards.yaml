@@ -1,0 +1,16 @@
+{{- if .Values.grafana.dashboards.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "myapp.fullname" . }}-grafana-dashboards
+  namespace: {{ .Values.grafana.namespace | default "monitoring" }}
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    grafana_dashboard: "1"  # Label that Grafana looks for to find dashboards
+    {{- with .Values.grafana.dashboards.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  restaurant-sentiment-dashboard.json: |-
+{{ .Files.Get "dashboards/restaurant-sentiment-dashboard.json" | indent 4 }}
+{{- end }}
