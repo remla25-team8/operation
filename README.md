@@ -82,8 +82,10 @@ Note: This setup is for testing purposes only and doesn't include all features o
 
 2. Start the Kubernetes environment
     ```bash
-    vagrant up
-    vagrant ssh ctrl
+      vagrant up
+      vagrant ssh ctrl
+      # On host machine:
+      ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
    ```
 
 3. Inside the VM (ctrl), deploy the app:
@@ -93,13 +95,10 @@ Note: This setup is for testing purposes only and doesn't include all features o
       # Create the required secret (required only the first time)
       kubectl create secret generic app-secrets \
       --from-literal=SMTP_PASSWORD=your-actual-password \
-      --dry-run=client -o yaml > k8s/secret.yaml
+      --dry-run=client -o yaml > secret.yaml
 
       # Apply all Kubernetes manifests
       kubectl apply -f .
-
-      # Install NGINX Ingress Controller
-      kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
 
       # Patch for Vagrant
       kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec":{"type":"NodePort"}}'
@@ -113,22 +112,20 @@ Note: This setup is for testing purposes only and doesn't include all features o
 
 5. Access the application:
     ```bash
-
       # Some options require access via your NodePort (3XXXX), command to find the NodePort: 
       kubectl get svc -n ingress-nginx
 
-      # Option 1 (on browser), where 3XXXX (is the NodePort) 
-      http://myapp.local:3XXXX/
+      # Option 1 (on browser), where 3XXXX (is the NodePort for https/443 port) 
+      https://myapp.local:3XXXX/
 
       # Option 2: 
-
       # Port-Forward to a Pod 
       kubectl port-forward deployment/app-service 8080:8080     
       # Then access
       curl http://localhost:8080
 
       # Option 3:
-      curl http://192.168.56.100:3XXXX  
+      curl -k https://192.168.56.100:3XXXX  
    ```
 
 6. Clean up:
@@ -139,16 +136,6 @@ Note: This setup is for testing purposes only and doesn't include all features o
       # Destroy Vagrant environment (from host)
       vagrant destroy -f   
    ```
-
-## Code Structure
-
-Key files and directories for understanding the deployment architecture:
-
-| File/Directory | Purpose |
-|---------------|---------|
-| `docker-compose.yml` | Main orchestration file defining all services and their relationships |
-| `.env` | Environment variables configuration (ports, versions, resource limits) |
-
 
 ## Assignment Progress Log
 
