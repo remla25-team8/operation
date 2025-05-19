@@ -71,6 +71,10 @@ Created PR:
 Approved PR:
 - https://github.com/remla25-team8/operation/pull/15
 
+### Xinyu Gao
+Created PR: https://github.com/remla25-team8/operation/pull/24
+Approved PR: https://github.com/remla25-team8/operation/pull/17
+
 # A4:
 
 ...
