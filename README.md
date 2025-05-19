@@ -165,3 +165,8 @@ ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
 When this playbook is complete it will give you the instructions for setting up the dashboard.
 
 
+### Assignment A3
+During this phase, following tasks were implemented:
+- Kubernetes migration with Helm chart
+- Monitoring Stack including Metrics, Alerting, Prometheus and Grafana
+- Documentation for each of the above
