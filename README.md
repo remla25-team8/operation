@@ -101,67 +101,47 @@ This will allow you to access the various web interfaces by hostname.
 
 3. Inside the VM (ctrl), deploy the app:
     ```bash
-      cd /vagrant/k8s
+      cd /vagrant/helm/myapp
 
       # Create the required secret (required only the first time)
-      kubectl create secret generic app-secrets \
-      --from-literal=SMTP_PASSWORD=your-actual-password \
-      --dry-run=client -o yaml > secret.yaml
+      Create the Secret for sensitive data:
+      ```sh
+      kubectl create secret generic dev-myapp-secret --from-literal=smtpPassword=<your-SMTP-password>
+      ```
 
-      # Apply all Kubernetes manifests
-      kubectl apply -f .
+      Install the chart:
+      ```sh
+      helm install dev-myapp . --set namePrefix=dev --set ingress.host=dev.myapp.local
+      ```
 
-      # Patch for Vagrant
-      kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec":{"type":"NodePort"}}'
-
-   ```
-
-4. Check deployment status:
-    ```bash
+      Ensure ingress is running:
+      ```bash
       kubectl get pods -n ingress-nginx  # Should show Running status   
-   ```
+      ```
 
-5. Access the application:
-    ```bash
-      # Some options require access via your NodePort (3XXXX), command to find the NodePort: 
-      kubectl get svc -n ingress-nginx
+5. Outside the VMs, on your host machine:
 
-      # Option 1 (on browser), where 3XXXX (is the NodePort for https/443 port) 
-      https://myapp.local:3XXXX/
+      Add to `/etc/hosts` file the following:
 
-      # Option 2: 
-      # Port-Forward to a Pod 
-      kubectl port-forward deployment/app-service 8080:8080     
-      # Then access
-      curl http://localhost:8080
-
-      # Option 3:
-      curl -k https://192.168.56.100:3XXXX  
-   ```
-
-6. Clean up:
-    ```bash
-      # Delete deployment
-      kubectl delete -f .
-
-      # Destroy Vagrant environment (from host)
-      vagrant destroy -f   
-   ```
+         - 192.168.56.90 grafana.myapp.local
+         - 192.168.56.90 dev.myapp.local
+         - 192.168.56.90 prometheus.local
+   
 
 ### Accessing the Application
 
 After deployment, you can access the following services:
 
-* Web Application: http://myapp.local
-* Kubernetes Dashboard: https://dashboard.local
-* Grafana: http://grafana.local (credentials: admin/prom-operator)
+* Web Application: http://dev.myapp.local
+* Kubernetes Dashboard: https://dashboard.local (setup instructions during provisioning also requires adding to hosts file)
+* Grafana: http://grafana.myapp.local (credentials: admin/prom-operator)
 * Prometheus: http://prometheus.local
 
 #### Monitoring with Grafana
 Accessing Grafana Dashboard
 
 1. Make sure you've added grafana.local to your hosts file as described above
-2. Navigate to http://grafana.local in your browser
+2. Navigate to http://grafana.myapp.local in your browser
 3. Log in with default credentials: Username: admin Password: prom-operator
 4. Go to Dashboards → Browse to find the "Restaurant Sentiment Analysis Dashboard"
 
