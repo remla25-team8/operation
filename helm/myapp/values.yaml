@@ -83,7 +83,6 @@ grafana:
   dashboards:
     enabled: true
     additionalLabels:
-      # These labels should match what your Grafana operator is looking for
       grafana_dashboard: "1"
       release: prometheus
     annotations:
@@ -94,6 +93,7 @@ grafana:
     className: nginx
     annotations:
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
 
 
 
