@@ -39,17 +39,10 @@
     - name: Generate Kubernetes join command on controller
       command: kubeadm token create --print-join-command
       delegate_to: "{{ groups['controller'][0] }}"
-      run_once: true
       register: join_cmd
       when: not kubelet_config_exists.stat.exists
 
     # Step 19 - Join the worker node to the cluster
-    # - name: Join the Kubernetes cluster
-    #   # shell: "{{ join_cmd.stdout }}"
-    #   ansible.builtin.shell: "{{ join_cmd.stdout }}"
-    #   args:
-    #     warn: false
-    #   when: not kubelet_config_exists.stat.exists
     - name: Join the Kubernetes cluster
       ansible.builtin.shell:
         cmd: "{{ join_cmd.stdout }} -v=5"
