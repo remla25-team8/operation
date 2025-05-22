@@ -69,8 +69,8 @@ Created PR: https://github.com/remla25-team8/operation/pull/15  (assignment 3)<b
 Approved PR: https://github.com/remla25-team8/operation/pull/16  (assignment 3)
 
 ### Cristian Perlog
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/operation/pull/14 (assignment 3) <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/24 (assignment 3)
 
 ### Todor Mladenovic
 Created PR:

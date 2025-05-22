@@ -187,6 +187,6 @@ When this playbook is complete it will give you the instructions for setting up 
 
 ### Assignment A3
 During this phase, following tasks were implemented:
-- Kubernetes migration with Helm chart
-- Monitoring Stack including Metrics, Alerting, Prometheus and Grafana
-- Documentation for each of the above
+- Kubernetes migration with Helm chart.
+- Monitoring Stack including Metrics, Alerting, Prometheus and Grafana.
+- Documentation for each of the above.
