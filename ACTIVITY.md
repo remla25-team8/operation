@@ -1,80 +1,84 @@
-# A1:
+# W2:
 
 ### Lorenzo
 
-Created PR: https://github.com/remla25-team8/app/pull/2
-
-Approved PR: https://github.com/remla25-team8/lib-version/pull/1
+Created PR: https://github.com/remla25-team8/app/pull/2  (assignment 1)  <br>
+Approved PR: https://github.com/remla25-team8/lib-version/pull/1  (assignment 1)
 
 ### Yongcheng Huang
 
-Created PR: https://github.com/remla25-team8/lib-ml/pull/1
-
-Approved PR: https://github.com/remla25-team8/model-service/pull/1
+Created PR: https://github.com/remla25-team8/lib-ml/pull/1  (assignment 1)<br>
+Approved PR: https://github.com/remla25-team8/model-service/pull/1  (assignment 1)
 
 ### Cristian Perlog
 
-Createrd PR: https://github.com/remla25-team8/model-service/pull/1
-
-Approved PR: https://github.com/remla25-team8/lib-ml/pull/2
+Created PR: https://github.com/remla25-team8/model-service/pull/1  (assignment 1)<br>
+Approved PR: https://github.com/remla25-team8/lib-ml/pull/2  (assignment 1)
 
 ### Xinyu Gao
 
-Createrd PR: https://github.com/remla25-team8/operation/pull/3 
-
-Approved PR: https://github.com/remla25-team8/model-training/pull/1
+Created PR: https://github.com/remla25-team8/operation/pull/3   (assignment 1)<br>
+Approved PR: https://github.com/remla25-team8/model-training/pull/1  (assignment 1)
 
 ### Todor Mladenovic
 
 Created PR: 
-- https://github.com/remla25-team8/model-training/pull/1 
-- https://github.com/remla25-team8/model-training/pull/2
+- https://github.com/remla25-team8/model-training/pull/1  (assignment 1)
+- https://github.com/remla25-team8/model-training/pull/2  (assignment 1)
 
 Approved PR: 
-- https://github.com/remla25-team8/lib-ml/pull/1
-- https://github.com/remla25-team8/lib-ml/pull/3
+- https://github.com/remla25-team8/lib-ml/pull/1  (assignment 1)
+- https://github.com/remla25-team8/lib-ml/pull/3  (assignment 1)
 
-# A2:
+
+# W3:
 
 ### Lorenzo
-Created PR: https://github.com/remla25-team8/operation/pull/9
-Approved PR:https://github.com/remla25-team8/operation/pull/11 https://github.com/remla25-team8/operation/pull/10
+Created PR: https://github.com/remla25-team8/operation/pull/9  (assignment 2) <br>
+Approved PR:
+- https://github.com/remla25-team8/operation/pull/11  (assignment 2)
+- https://github.com/remla25-team8/operation/pull/10  (assignment 2)
+- https://github.com/remla25-team8/operation/pull/12  (assignment 2)
 
 ### Yongcheng Huang
-Created PR: https://github.com/remla25-team8/operation/pull/9
-Approved PR: https://github.com/remla25-team8/operation/pull/10
+Created PR: https://github.com/remla25-team8/operation/pull/9  (assignment 2)<br>
+Approved PR: https://github.com/remla25-team8/operation/pull/10  (assignment 2)
 
 ### Cristian Perlog
-Created PR: https://github.com/remla25-team8/operation/pull/10
-Approved PR: https://github.com/remla25-team8/operation/pull/9
+Created PR: https://github.com/remla25-team8/operation/pull/10  (assignment 2)<br>
+Approved PR: https://github.com/remla25-team8/operation/pull/9  (assignment 2)
 
 ### Xinyu Gao
-Created PR: https://github.com/remla25-team8/operation/pull/11
-Approved PR: I was supposed to approve pull 10 but somehow it was not taken into account.
+Created PR: https://github.com/remla25-team8/operation/pull/11  (assignment 2)<br>
+Approved PR: I was supposed to approve pull 10 but somehow it was not taken into account.  (assignment 2)
 
 ### Todor Mladenovic
-Created PR: https://github.com/remla25-team8/operation/pull/12
-Approved PR: https://github.com/remla25-team8/operation/pull/11
+Created PR: https://github.com/remla25-team8/operation/pull/12  (assignment 2)<br>
+Approved PR: https://github.com/remla25-team8/operation/pull/11  (assignment 2)
 
+# W4:
 
-# A3:
+### Lorenzo
+Created PR: https://github.com/remla25-team8/operation/pull/25  (assignment 3) <br>
+Approved PR: 
+- https://github.com/remla25-team8/app/pull/8  (assignment 3)
+- https://github.com/remla25-team8/operation/pull/24  (assignment 3)
 
 ### Yongcheng Huang
-Creaed PR: https://github.com/remla25-team8/operation/pull/15
-Approved PR: https://github.com/remla25-team8/operation/pull/16
+Created PR: https://github.com/remla25-team8/operation/pull/15  (assignment 3)<br>
+Approved PR: https://github.com/remla25-team8/operation/pull/16  (assignment 3)
+
+### Cristian Perlog
+Created PR: <br>
+Approved PR: 
 
 ### Todor Mladenovic
 Created PR:
-- https://github.com/remla25-team8/operation/pull/16
-- https://github.com/remla25-team8/app/pull/8
-
+- https://github.com/remla25-team8/operation/pull/16  (assignment 3)
+- https://github.com/remla25-team8/app/pull/8  (assignment 3) <br>
 Approved PR:
-- https://github.com/remla25-team8/operation/pull/15
+- https://github.com/remla25-team8/operation/pull/15  (assignment 3)
 
 ### Xinyu Gao
-Created PR: https://github.com/remla25-team8/operation/pull/24
-Approved PR: https://github.com/remla25-team8/operation/pull/17
-
-# A4:
-
-...
+Created PR: https://github.com/remla25-team8/operation/pull/24  (assignment 3) <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/17  (assignment 3)
