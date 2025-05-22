@@ -72,6 +72,17 @@ The script will:
 
 Note: This setup is for testing purposes only and doesn't include all features of the full deployment.
 
+
+### Configuring Host Access
+
+Add the following entries to your local machine's `/etc/hosts` file:
+
+```bash
+192.168.56.90 myapp.local dashboard.local grafana.local prometheus.local
+```
+
+This will allow you to access the various web interfaces by hostname.
+
 ### Running the Application
 
 1. Clone this repository to your local machine.
@@ -80,20 +91,71 @@ Note: This setup is for testing purposes only and doesn't include all features o
    cd operation
    ```
 
-2. Start all services
+2. Start the Kubernetes environment
     ```bash
-    docker compose up -d
+      # On host machine:
+      vagrant up
+      ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
+      vagrant ssh ctrl
    ```
 
-## Code Structure
+3. Inside the VM (ctrl), deploy the app:
+    ```bash
+      cd /vagrant/helm/myapp
 
-Key files and directories for understanding the deployment architecture:
+      # Create the required secret (required only the first time)
+      Create the Secret for sensitive data:
+      ```sh
+      kubectl create secret generic dev-myapp-secret --from-literal=smtpPassword=<your-SMTP-password>
+      ```
 
-| File/Directory | Purpose |
-|---------------|---------|
-| `docker-compose.yml` | Main orchestration file defining all services and their relationships |
-| `.env` | Environment variables configuration (ports, versions, resource limits) |
+      Install the chart:
+      ```sh
+      helm install dev-myapp . --set namePrefix=dev --set ingress.host=dev.myapp.local
+      ```
 
+      Ensure ingress is running:
+      ```bash
+      kubectl get pods -n ingress-nginx  # Should show Running status   
+      ```
+
+5. Outside the VMs, on your host machine:
+
+      Add to `/etc/hosts` file the following:
+
+         - 192.168.56.90 grafana.myapp.local
+         - 192.168.56.90 dev.myapp.local
+         - 192.168.56.90 prometheus.local
+   
+
+### Accessing the Application
+
+After deployment, you can access the following services:
+
+* Web Application: http://dev.myapp.local
+* Kubernetes Dashboard: https://dashboard.local (setup instructions during provisioning also requires adding to hosts file)
+* Grafana: http://grafana.myapp.local (credentials: admin/prom-operator)
+* Prometheus: http://prometheus.local
+
+#### Monitoring with Grafana
+Accessing Grafana Dashboard
+
+1. Make sure you've added grafana.local to your hosts file as described above
+2. Navigate to http://grafana.myapp.local in your browser
+3. Log in with default credentials: Username: admin Password: prom-operator
+4. Go to Dashboards → Browse to find the "Restaurant Sentiment Analysis Dashboard"
+
+#### Generating Test Data
+
+We provide scripts to generate test data for the dashboard:
+
+##### Using Bash (Linux/macOS)
+```bash
+./scripts/test-grafana-bash.sh 50 myapp.local
+```
+
+##### Using PowerShell (Windows)
+*coming soon*
 
 ## Assignment Progress Log
 
@@ -123,3 +185,8 @@ ansible-playbook -u vagrant -i 192.168.56.100, ansible/finalization.yaml
 When this playbook is complete it will give you the instructions for setting up the dashboard.
 
 
+### Assignment A3
+During this phase, following tasks were implemented:
+- Kubernetes migration with Helm chart
+- Monitoring Stack including Metrics, Alerting, Prometheus and Grafana
+- Documentation for each of the above

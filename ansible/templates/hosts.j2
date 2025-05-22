@@ -1,11 +1,14 @@
 127.0.0.1 localhost
 
+# Application host for Ingress routing
+192.168.56.100 myapp.local
+
 ::1         localhost ip6-localhost ip6-loopback
 ff02::1     ip6-allnodes
 ff02::2     ip6-allrouters
 
 # Controller node
-192.168.56.100 ctrl
+192.168.56.100 ctrl myapp.local
 
 # Worker nodes
 {% for i in range(1, worker_count | int + 1) %}

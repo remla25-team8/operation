@@ -65,9 +65,11 @@
         key: "{{ lookup('file', item) }}"
       with_items:
         - "files/ssh_keys/lorenzo.pub"
+        - "files/ssh_keys/lorenzo2.pub"
         - "files/ssh_keys/yongcheng.pub"
         - "files/ssh_keys/xin.pub"
         - "files/ssh_keys/todor.pub"
+        - "files/ssh_keys/cristian.pub"
         # Add your public ssh keys (at least two)
 
     # Step 5: Disable SWAP

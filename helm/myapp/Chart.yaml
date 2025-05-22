@@ -1,0 +1,5 @@
+apiVersion: v2
+name: myapp
+description: Helm chart for remla25-team8
+version: 0.1.0
+appVersion: "1.0"

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+  template:
+    metadata:
+      labels:
+        app: model-service
+    spec:
+      containers:
+      - name: model-service
+        image: ghcr.io/remla25-team8/model-service:1.0.0
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"  # 0.1 CPU core
+            memory: "128Mi"
+          limits:
+            cpu: "500m"  # 0.5 CPU core
+            memory: "512Mi"
+        env:
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MODEL_SERVICE_PORT

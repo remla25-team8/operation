@@ -5,22 +5,22 @@
 Created PR: https://github.com/remla25-team8/app/pull/2  (assignment 1)  <br>
 Approved PR: https://github.com/remla25-team8/lib-version/pull/1  (assignment 1)
 
-### Yongcheng
+### Yongcheng Huang
 
 Created PR: https://github.com/remla25-team8/lib-ml/pull/1  (assignment 1)<br>
 Approved PR: https://github.com/remla25-team8/model-service/pull/1  (assignment 1)
 
-### Cristian
+### Cristian Perlog
 
 Created PR: https://github.com/remla25-team8/model-service/pull/1  (assignment 1)<br>
 Approved PR: https://github.com/remla25-team8/lib-ml/pull/2  (assignment 1)
 
-### Xinyu
+### Xinyu Gao
 
 Created PR: https://github.com/remla25-team8/operation/pull/3   (assignment 1)<br>
 Approved PR: https://github.com/remla25-team8/model-training/pull/1  (assignment 1)
 
-### Todor
+### Todor Mladenovic
 
 Created PR: 
 - https://github.com/remla25-team8/model-training/pull/1  (assignment 1)
@@ -55,7 +55,6 @@ Approved PR: I was supposed to approve pull 10 but somehow it was not taken into
 ### Todor Mladenovic
 Created PR: https://github.com/remla25-team8/operation/pull/12  (assignment 2)<br>
 Approved PR: https://github.com/remla25-team8/operation/pull/11  (assignment 2)
-
 
 # W4:
 

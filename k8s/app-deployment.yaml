@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-service
+  template:
+    metadata:
+      labels:
+        app: app-service
+    spec:
+      containers:
+      - name: app-service
+        image: ghcr.io/remla25-team8/app:1.1.0
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "100m"  # 0.1 CPU core
+            memory: "128Mi"
+          limits:
+            cpu: "1"  # 0.5 CPU core
+            memory: "512Mi"
+        env:
+        - name: MODEL_SERVICE_URL
+          value: "http://model-service:5000"
+        volumeMounts:
+        - name: shared-storage
+          mountPath: /root/mount # path inside the containers
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+      volumes:
+      - name: shared-storage
+        hostPath:
+          path: /mnt/shared # path on the VM which is host to the containers
