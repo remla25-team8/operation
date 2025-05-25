@@ -82,3 +82,26 @@ Approved PR:
 ### Xinyu Gao
 Created PR: https://github.com/remla25-team8/operation/pull/24  (assignment 3) <br>
 Approved PR: https://github.com/remla25-team8/operation/pull/17  (assignment 3)
+
+
+# W5:
+
+### Lorenzo
+Created PR: https://github.com/remla25-team8/model-training/pull/5   (assignment 4) <br>
+Approved PR: https://github.com/remla25-team8/model-training/pull/4 (assignment 4)
+
+### Yongcheng Huang
+Created PR: <br>
+Approved PR: 
+
+### Cristian Perlog
+Created PR: <br>
+Approved PR: 
+
+### Todor Mladenovic
+Created PR
+Approved PR
+
+### Xinyu Gao
+Created PR:
+Approved PR:
