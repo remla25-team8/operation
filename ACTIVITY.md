@@ -103,5 +103,5 @@ Created PR
 Approved PR
 
 ### Xinyu Gao
-Created PR:
-Approved PR:
+Created PR: https://github.com/remla25-team8/model-training/pull/7 (assignment 4) <br>
+Approved PR: https://github.com/remla25-team8/model-training/pull/5 (assignment 4), I merged it after others approved.
