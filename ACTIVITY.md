@@ -91,8 +91,8 @@ Created PR: https://github.com/remla25-team8/model-training/pull/5   (assignment
 Approved PR: https://github.com/remla25-team8/model-training/pull/4 (assignment 4)
 
 ### Yongcheng Huang
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/model-training/pull/3 (assignment 4) <br>
+Approved PR: https://github.com/remla25-team8/model-training/pull/5
 
 ### Cristian Perlog
 Created PR: <br>
