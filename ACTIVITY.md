@@ -87,15 +87,15 @@ Approved PR: https://github.com/remla25-team8/model-training/pull/4 (assignment 
 
 -- Yongcheng Huang: --
 Created PR: https://github.com/remla25-team8/model-training/pull/3 (assignment 4) <br>
-Approved PR: https://github.com/remla25-team8/model-training/pull/5
+Approved PR: https://github.com/remla25-team8/model-training/pull/5 (assignment 4)
 
 -- Cristian Perlog: --
 Created PR: https://github.com/remla25-team8/model-training/pull/4 (assignment 4)<br>
-Approved PR: https://github.com/remla25-team8/model-training/pull/7
+Approved PR: https://github.com/remla25-team8/model-training/pull/7 (assignment 4)
 
 -- Todor Mladenovic: --
-Created PR: https://github.com/remla25-team8/model-training/pull/8
-Approved PR: https://github.com/remla25-team8/model-training/pull/3
+Created PR: https://github.com/remla25-team8/model-training/pull/8 (assignment 4)
+Approved PR: https://github.com/remla25-team8/model-training/pull/3 (assignment 4)
 
 -- Xinyu Gao: --
 Created PR: https://github.com/remla25-team8/model-training/pull/7 (assignment 4) <br>
