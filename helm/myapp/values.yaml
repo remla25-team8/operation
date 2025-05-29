@@ -17,8 +17,8 @@ service:
   targetPort: 8080
   type: ClusterIP
 
-ingress:
-  enabled: true
+ingress: 
+  enabled: false    # Here I disabled ingress because I want to use istio
   host: ""
   path: /
   className: nginx
@@ -108,6 +108,13 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
+
+  
+istio:
+       enabled: true
+       host: app.local
+       sticky:
+         userId: test-user
 
 resources: {}
   # limits:

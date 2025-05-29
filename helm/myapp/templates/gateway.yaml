@@ -1,0 +1,17 @@
+{{- if .Values.istio.enabled }}
+     apiVersion: networking.istio.io/v1alpha3
+     kind: Gateway
+     metadata:
+       name: {{ include "myapp.fullname" . }}-gateway
+       namespace: default
+     spec:
+       selector:
+         istio: ingressgateway
+       servers:
+       - port:
+           number: 80
+           name: http
+           protocol: HTTP
+         hosts:
+         - "{{ .Values.istio.host }}"
+     {{- end }}

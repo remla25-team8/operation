@@ -1,40 +1,89 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "myapp.fullname" . }}
-  labels:
-    {{- include "myapp.labels" . | nindent 4 }}
-spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      {{- include "myapp.labels" . | nindent 6 }}
-  template:
-    metadata:
-      labels:
-        {{- include "myapp.labels" . | nindent 8 }}
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/path: "/metrics"
-        prometheus.io/port: "{{ .Values.service.targetPort }}"
-    spec:
-      containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: {{ .Values.service.targetPort }}
-              name: http
-          env:
-            - name: MODEL_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-config
-                  key: modelServiceUrl
-            - name: SMTP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "myapp.fullname" . }}-secret
-                  key: smtpPassword
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+# v1 Deployment
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: {{ include "myapp.fullname" . }}-v1
+       labels:
+         {{- include "myapp.labels" . | nindent 4 }}
+         version: v1
+     spec:
+       replicas: {{ .Values.replicaCount }}
+       selector:
+         matchLabels:
+           {{- include "myapp.labels" . | nindent 6 }}
+           version: v1
+       template:
+         metadata:
+           labels:
+             {{- include "myapp.labels" . | nindent 8 }}
+             version: v1
+           annotations:
+             prometheus.io/scrape: "true"
+             prometheus.io/path: "/metrics"
+             prometheus.io/port: "{{ .Values.service.targetPort }}"
+         spec:
+           containers:
+             - name: {{ .Chart.Name }}
+               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+               imagePullPolicy: {{ .Values.image.pullPolicy }}
+               ports:
+                 - containerPort: {{ .Values.service.targetPort }}
+                   name: http
+               env:
+                 - name: MODEL_SERVICE_URL
+                   valueFrom:
+                     configMapKeyRef:
+                       name: {{ include "myapp.fullname" . }}-config
+                       key: modelServiceUrl
+                 - name: SMTP_PASSWORD
+                   valueFrom:
+                     secretKeyRef:
+                       name: {{ include "myapp.fullname" . }}-secret
+                       key: smtpPassword
+               resources:
+                 {{- toYaml .Values.resources | nindent 12 }}
+     ---
+     # v2 Deployment
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: {{ include "myapp.fullname" . }}-v2
+       labels:
+         {{- include "myapp.labels" . | nindent 4 }}
+         version: v2
+     spec:
+       replicas: {{ .Values.replicaCount }}
+       selector:
+         matchLabels:
+           {{- include "myapp.labels" . | nindent 6 }}
+           version: v2
+       template:
+         metadata:
+           labels:
+             {{- include "myapp.labels" . | nindent 8 }}
+             version: v2
+           annotations:
+             prometheus.io/scrape: "true"
+             prometheus.io/path: "/metrics"
+             prometheus.io/port: "{{ .Values.service.targetPort }}"
+         spec:
+           containers:
+             - name: {{ .Chart.Name }}
+               image: "{{ .Values.image.repository }}:2.0.0"
+               imagePullPolicy: {{ .Values.image.pullPolicy }}
+               ports:
+                 - containerPort: {{ .Values.service.targetPort }}
+                   name: http
+               env:
+                 - name: MODEL_SERVICE_URL
+                   valueFrom:
+                     configMapKeyRef:
+                       name: {{ include "myapp.fullname" . }}-config
+                       key: modelServiceUrl
+                 - name: SMTP_PASSWORD
+                   valueFrom:
+                     secretKeyRef:
+                       name: {{ include "myapp.fullname" . }}-secret
+                       key: smtpPassword
+               resources:
+                 {{- toYaml .Values.resources | nindent 12 }}

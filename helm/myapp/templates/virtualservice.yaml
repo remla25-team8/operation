@@ -1,0 +1,30 @@
+{{- if .Values.istio.enabled }}
+     apiVersion: networking.istio.io/v1alpha3
+     kind: VirtualService
+     metadata:
+       name: {{ include "myapp.fullname" . }}-vs
+       namespace: default
+     spec:
+       hosts:
+       - "{{ .Values.istio.host }}"
+       gateways:
+       - {{ include "myapp.fullname" . }}-gateway
+       http:
+       - match:
+         - headers:
+             x-user-id:
+               exact: "{{ .Values.istio.sticky.userId }}"
+         route:
+         - destination:
+             host: {{ include "myapp.fullname" . }}-service
+             subset: v2
+       - route:
+         - destination:
+             host: {{ include "myapp.fullname" . }}-service
+             subset: v1
+           weight: 90
+         - destination:
+             host: {{ include "myapp.fullname" . }}-service
+             subset: v2
+           weight: 10
+     {{- end }}
