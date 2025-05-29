@@ -30,17 +30,17 @@ This repository contains the Kubernetes and Helm configurations for the *Restaur
 ### Testing Instructions
 
 1. **Prerequisites**:
-   - Start the Vagrant environment: `vagrant up`.
-   - Verify Istio installation: `kubectl get pods -n istio-system` (expect `istio-ingressgateway` running).
+   - Go through steps in main README up to but not including helm install
+   <!-- - Verify Istio installation: `kubectl get pods -n istio-system` (expect `istio-ingressgateway` running).
    - Add `192.168.56.90 app.local` to `/etc/hosts` (local or Vagrant host, assuming MetalLB IP from A2).
-   - Ensure `app` v2 image (`ghcr.io/remla25-team8/app:2.0.0`) is available.
+   - Ensure `app` v2 image (`ghcr.io/remla25-team8/app:2.0.0`) is available. -->
 
 2. **Deploy Helm Chart**:
    ```bash
    helm install my-app ./helm/myapp -n default
    ```
 
-3. **Automated Testing**:
+3. **Automated Testing: These don't work yet since they rely on model-service which isn't working via helm install yet**:
    ```bash
    bash helm/myapp/tests/sticky-session-test.sh
    ```
@@ -48,14 +48,16 @@ This repository contains the Kubernetes and Helm configurations for the *Restaur
      - First loop (10 requests): ~90% route to v1 (`1.1.4`), ~10% to v2 (`2.0.0`). Check response differences (e.g., version-specific headers, if implemented).
      - Second loop (5 requests): All requests with `x-user-id: test-user` route to v2.
 
-4. **Manual Testing**:
+4. **Manual Testing:**:
    ```bash
    # Test default routing
-   curl -H "Host: app.local" http://192.168.56.90/analyze -d '{"review": "Great food!"}' -H "Content-Type: application/json"
+   curl -H "Host: app.local" http://192.168.56.91/analyze -d '{"review": "Great food!"}' -H "Content-Type: application/json"
    
    # Test Sticky Sessions
-   curl -H "Host: app.local" -H "x-user-id: test-user" http://192.168.56.90/analyze -d '{"review": "Great food!"}' -H "Content-Type: application/json"
+   curl -H "Host: app.local" -H "x-user-id: test-user" http://192.168.56.91/analyze -d '{"review": "Great food!"}' -H "Content-Type: application/json"
    ```
+
+   You should get a 500 error from frontend failing to communicate with backend since it's not up yet.
 
 ### Verification Methods
 
