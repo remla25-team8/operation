@@ -282,6 +282,18 @@
           - "The control plane (istiod) is installed in istio-system namespace."
           - "The ingress gateway is installed in istio-ingress namespace."
 
+    - name: Enable Istio sidecar injection for default namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: default
+            labels:
+              istio-injection: enabled
+        kubeconfig: "{{ kubeconfig }}"
+
     - name: Create monitoring namespace
       kubernetes.core.k8s:
         state: present

@@ -192,3 +192,22 @@
       delay: 10
       when: cluster_ready.stat.exists
       changed_when: false    
+
+    # - name: Download and unpack Istio
+    #   ansible.builtin.shell: |
+    #     curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.25.2 sh -
+    #     mv istio-1.25.2 /opt/istio
+    #   args:
+    #     creates: /opt/istio
+    #     executable: /bin/bash
+
+    # - name: Add istioctl to PATH
+    #   ansible.builtin.lineinfile:
+    #     path: /home/vagrant/.bashrc
+    #     line: 'export PATH=$PATH:/opt/istio/bin'
+    #     state: present
+
+    # - name: Install Istio
+    #   ansible.builtin.shell: /opt/istio/bin/istioctl install --set profile=demo -y
+    #   args:
+    #     creates: /etc/istio
