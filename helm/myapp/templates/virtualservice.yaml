@@ -16,15 +16,15 @@ spec:
           exact: "{{ .Values.istio.sticky.userId }}"
     route:
     - destination:
-        host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v2
   - route:
     - destination:
-        host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v1
       weight: 90
     - destination:
-        host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v2
       weight: 10
 ---

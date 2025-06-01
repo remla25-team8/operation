@@ -5,4 +5,4 @@ metadata:
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
 data:
-  modelServiceUrl: {{ .Values.configMap.modelServiceUrl }}
+  modelServiceUrl: http://{{ if .Values.namePrefix }}{{ .Values.namePrefix }}-{{ .Values.modelService.name }}{{ else }}{{ .Values.modelService.name }}{{ end }}:{{ .Values.modelService.port }}

@@ -5,7 +5,7 @@ metadata:
   name: {{ include "myapp.fullname" . }}
   namespace: default
 spec:
-  host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+  host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
   subsets:
   - name: v1
     labels:
