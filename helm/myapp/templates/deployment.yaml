@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
+          imagePullPolicy: {{ .Values.appImage.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: http
@@ -44,6 +44,40 @@ spec:
                   key: smtpPassword
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namePrefix }}-model-service
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+      {{- include "myapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: model-service
+        {{- include "myapp.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: model-service
+          image: "{{ .Values.modelImage.repository }}:{{ .Values.modelImage.tag }}"
+          imagePullPolicy: {{ .Values.modelImage.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.modelService.targetPort }}
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
 ---
 # v2 Deployment
 apiVersion: apps/v1

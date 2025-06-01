@@ -308,7 +308,13 @@
       kubernetes.core.helm_repository:
         name: prometheus-community
         repo_url: https://prometheus-community.github.io/helm-charts
-        
+      register: helm_repo_result
+      retries: 3
+      delay: 10
+      until: helm_repo_result is success
+      changed_when: helm_repo_result is success
+      failed_when: helm_repo_result is failed
+
     - name: Install Prometheus Stack
       kubernetes.core.helm:
         name: prometheus

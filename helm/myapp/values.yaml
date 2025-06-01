@@ -1,8 +1,13 @@
 replicaCount: 1
 
-image:
+appImage:
   repository: ghcr.io/remla25-team8/app
   tag: "1.1.4"
+  pullPolicy: IfNotPresent
+
+modelImage:
+  repository: ghcr.io/remla25-team8/model-service
+  tag: "1.0.0"
   pullPolicy: IfNotPresent
 
 namePrefix: ""
@@ -12,13 +17,19 @@ serviceAccount:
   name: ""
 
 service:
-  name: model-service
+  name: app-service
   port: 8080
   targetPort: 8080
   type: ClusterIP
 
-ingress: 
-  enabled: false    # Here I disabled ingress because I want to use istio
+modelService:
+  name: model-service
+  port: 5000
+  targetPort: 5000
+  type: ClusterIP
+
+ingress:
+  enabled: false
   host: ""
   path: /
   className: nginx
@@ -98,7 +109,7 @@ grafana:
 
 
 configMap:
-  modelServiceUrl: http://model-service:8080
+  modelServiceUrl: http://model-service:5000
 
 secret:
   smtpPassword: ""
