@@ -29,7 +29,7 @@ modelService:
   type: ClusterIP
 
 ingress:
-  enabled: true
+  enabled: false
   host: ""
   path: /
   className: nginx
@@ -119,6 +119,13 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
+
+  
+istio:
+       enabled: true
+       host: app.local
+       sticky:
+         userId: test-user
 
 resources: {}
   # limits:

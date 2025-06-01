@@ -282,6 +282,18 @@
           - "The control plane (istiod) is installed in istio-system namespace."
           - "The ingress gateway is installed in istio-ingress namespace."
 
+    - name: Enable Istio sidecar injection for default namespace
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: default
+            labels:
+              istio-injection: enabled
+        kubeconfig: "{{ kubeconfig }}"
+
     - name: Create monitoring namespace
       kubernetes.core.k8s:
         state: present
@@ -296,7 +308,13 @@
       kubernetes.core.helm_repository:
         name: prometheus-community
         repo_url: https://prometheus-community.github.io/helm-charts
-        
+      register: helm_repo_result
+      retries: 3
+      delay: 10
+      until: helm_repo_result is success
+      changed_when: helm_repo_result is success
+      failed_when: helm_repo_result is failed
+
     - name: Install Prometheus Stack
       kubernetes.core.helm:
         name: prometheus
