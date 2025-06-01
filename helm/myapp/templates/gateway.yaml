@@ -4,14 +4,16 @@ kind: Gateway
 metadata:
   name: {{ include "myapp.fullname" . }}-gateway
   namespace: istio-ingress
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
 spec:
   selector:
-    app: istio-ingress
+    istio: ingressgateway  # Use the default Istio ingress gateway
   servers:
   - port:
       number: 80
       name: http
       protocol: HTTP
     hosts:
-    - "{{ .Values.istio.host }}"
+    - "{{ .Values.istio.host | default "app.local" }}"
 {{- end }}
