@@ -27,4 +27,26 @@ spec:
         host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
         subset: v2
       weight: 10
+---
+# Internal VirtualService for model-service routing based on source app version
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-vs
+  namespace: default
+spec:
+  hosts:
+  - {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+  http:
+  - match:
+    - sourceLabels:
+        version: v2
+    route:
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+        subset: v2
+  - route: # default route for v1 and any other traffic
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+        subset: v1
 {{- end }}

@@ -1,4 +1,4 @@
-# v1 Deployment
+# v1 App Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,27 +45,31 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 ---
+# v1 Model Service Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.namePrefix }}-model-service
+  name: {{ .Values.namePrefix }}-model-service-v1
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
     app: model-service
+    version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: model-service
+      version: v1
       {{- include "myapp.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
         app: model-service
+        version: v1
         {{- include "myapp.labels" . | nindent 8 }}
     spec:
       containers:
-        - name: model-service
+        - name: model-service-v1
           image: "{{ .Values.modelImage.repository }}:{{ .Values.modelImage.tag }}"
           imagePullPolicy: {{ .Values.modelImage.pullPolicy }}
           ports:
@@ -79,7 +83,7 @@ spec:
               cpu: "500m"
               memory: "512Mi"
 ---
-# v2 Deployment
+# v2 App Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -107,8 +111,8 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}" # TODO: change to the correct image later when we have an
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.appImageV2.repository }}:{{ .Values.appImageV2.tag }}"
+          imagePullPolicy: {{ .Values.appImageV2.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: http
@@ -125,3 +129,41 @@ spec:
                   key: smtpPassword
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+---
+# v2 Model Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namePrefix }}-model-service-v2
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-service
+      version: v2
+      {{- include "myapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: model-service
+        version: v2
+        {{- include "myapp.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: model-service-v2
+          image: "{{ .Values.modelImageV2.repository }}:{{ .Values.modelImageV2.tag }}"
+          imagePullPolicy: {{ .Values.modelImageV2.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.modelService.targetPort }}
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
