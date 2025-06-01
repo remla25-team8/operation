@@ -45,8 +45,22 @@ spec:
     - destination:
         host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
         subset: v2
+{{- if .Values.shadowLaunch.enabled }}
+    mirror:
+      host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+      subset: shadow
+    mirrorPercentage:
+      value: {{ .Values.shadowLaunch.mirrorPercentage | default 100.0 }}
+{{- end }}
   - route: # default route for v1 and any other traffic
     - destination:
         host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
         subset: v1
+{{- if .Values.shadowLaunch.enabled }}
+    mirror:
+      host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+      subset: shadow
+    mirrorPercentage:
+      value: {{ .Values.shadowLaunch.mirrorPercentage | default 100.0 }}
+{{- end }}
 {{- end }}

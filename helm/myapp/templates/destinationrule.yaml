@@ -29,4 +29,9 @@ spec:
   - name: v2
     labels:
       version: v2
+{{- if .Values.shadowLaunch.enabled }}
+  - name: shadow
+    labels:
+      version: shadow
+{{- end }}
 {{- end }}
