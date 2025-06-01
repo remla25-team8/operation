@@ -102,37 +102,35 @@ This will allow you to access the various web interfaces by hostname.
 3. Inside the VM (ctrl), deploy the app:
     ```bash
       cd /vagrant/helm/myapp
-
-      # Create the required secret (required only the first time)
-      Create the Secret for sensitive data:
+   ```
+      Create the required secret (required only the first time):
       ```sh
       kubectl create secret generic dev-myapp-secret --from-literal=smtpPassword=<your-SMTP-password>
       ```
 
       Install the chart:
       ```sh
-      helm install dev-myapp . --set namePrefix=dev --set ingress.host=dev.myapp.local
+      helm install dev-myapp . --set namePrefix=dev 
       ```
-
-      Ensure ingress is running:
+      Test Istio:
       ```bash
-      kubectl get pods -n ingress-nginx  # Should show Running status   
+         bash tests/sticky-session-test.sh
       ```
+      
 
 5. Outside the VMs, on your host machine:
 
       Add to `/etc/hosts` file the following:
 
          - 192.168.56.90 grafana.myapp.local
-         - 192.168.56.90 dev.myapp.local
+         - 192.168.56.91 app.local
          - 192.168.56.90 prometheus.local
-   
 
 ### Accessing the Application
 
 After deployment, you can access the following services:
 
-* Web Application: http://dev.myapp.local
+* Web Application: http://app.local
 * Kubernetes Dashboard: https://dashboard.local (setup instructions during provisioning also requires adding to hosts file)
 * Grafana: http://grafana.myapp.local (credentials: admin/prom-operator)
 * Prometheus: http://prometheus.local
