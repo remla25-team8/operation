@@ -4,13 +4,44 @@ kind: DestinationRule
 metadata:
   name: {{ include "myapp.fullname" . }}
   namespace: default
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
 spec:
   host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
   subsets:
   - name: v1
     labels:
       version: v1
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 50
+        http:
+          http1MaxPendingRequests: 20
+          maxRequestsPerConnection: 10
   - name: v2
     labels:
       version: v2
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 50
+        http:
+          http1MaxPendingRequests: 20
+          maxRequestsPerConnection: 10
+{{- if .Values.istio.shadow.enabled }}
+  - name: v3
+    labels:
+      version: v3
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 30
+        http:
+          http1MaxPendingRequests: 10
+          maxRequestsPerConnection: 5
+{{- end }}
 {{- end }}
