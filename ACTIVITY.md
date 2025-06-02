@@ -122,8 +122,8 @@ Created PR: https://github.com/remla25-team8/operation/pull/33 (assignment 5)
 Approved PR: https://github.com/remla25-team8/operation/pull/34 (assignment 5)
 
 -- Xinyu Gao: --
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/operation/pull/35 (fix for previous tasks) <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/34 (assignment 5)
 
 
 
