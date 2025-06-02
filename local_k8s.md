@@ -1,4 +1,10 @@
 # Local start of k8s and app
+### 0. set up the ctrl for inside vagrant local run
+```
+vagrant ssh ctrl
+kubectl taint nodes ctrl node-role.kubernetes.io/control-plane:NoSchedule- # to remove the taint due to we don't have worker nodes
+```
+
 ### 1. add the permission and run
 ```
 cd /vagrant
