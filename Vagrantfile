@@ -1,8 +1,8 @@
-  WORKER_COUNT = 2         # Number of workers within cluster
-  MEMORY_CONTROLLER = 6144 # Controller memory (MB)
-  MEMORY_WORKER = 6144     # Workers memory (MB for each worker)
-  CPU_CONTROLLER = 2       # Controller CPU cores
-  CPU_WORKER = 2           # Worker CPU cores (each)
+  WORKER_COUNT = 0         # Number of workers within cluster
+  MEMORY_CONTROLLER = 16144 # Controller memory (MB)
+  MEMORY_WORKER = 16144     # Workers memory (MB for each worker)
+  CPU_CONTROLLER = 12       # Controller CPU cores
+  CPU_WORKER = 12           # Worker CPU cores (each)
 
   Vagrant.configure("2") do |config|
     config.vm.box = "bento/ubuntu-24.04"
@@ -17,6 +17,7 @@
       ctrl.vm.provider "virtualbox" do |vb|
         vb.memory = MEMORY_CONTROLLER
         vb.cpus = CPU_CONTROLLER
+        vb.gui = true
       end
     end
     
