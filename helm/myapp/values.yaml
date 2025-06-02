@@ -2,13 +2,13 @@ replicaCount: 1
 
 appImage:
   repository: ghcr.io/remla25-team8/app
-  tag: "1.1.4"
+  tag: "1.1.5"
   pullPolicy: IfNotPresent
 
 # Configuration for v2 app deployment
 appImageV2:
   repository: ghcr.io/remla25-team8/app
-  tag: "1.1.4"  # TODO: change to v2 version
+  tag: "2.0.0"
   pullPolicy: IfNotPresent
 
 modelImage:
