@@ -12,8 +12,9 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "myapp.selectorLabels" . | nindent 4 }}
+    {{- include "myapp.appSelectorLabels" . | nindent 4 }}
 ---
+# Model Service (routes to both v1 and v2 model pods)
 apiVersion: v1
 kind: Service
 metadata:
@@ -28,4 +29,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: model-service
+    {{- include "myapp.modelSelectorLabels" . | nindent 4 }}

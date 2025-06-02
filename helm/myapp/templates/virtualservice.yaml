@@ -16,15 +16,51 @@ spec:
           exact: "{{ .Values.istio.sticky.userId }}"
     route:
     - destination:
-        host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v2
   - route:
     - destination:
-        host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v1
       weight: 90
     - destination:
-        host: {{ .Values.service.name }}-{{ include "myapp.fullname" . }}
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v2
       weight: 10
+---
+# Internal VirtualService for model-service routing based on source app version
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-vs
+  namespace: default
+spec:
+  hosts:
+  - {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+  http:
+  - match:
+    - sourceLabels:
+        version: v2
+    route:
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+        subset: v2
+{{- if .Values.shadowLaunch.enabled }}
+    mirror:
+      host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+      subset: shadow
+    mirrorPercentage:
+      value: {{ .Values.shadowLaunch.mirrorPercentage | default 100.0 }}
+{{- end }}
+  - route: # default route for v1 and any other traffic
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+        subset: v1
+{{- if .Values.shadowLaunch.enabled }}
+    mirror:
+      host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+      subset: shadow
+    mirrorPercentage:
+      value: {{ .Values.shadowLaunch.mirrorPercentage | default 100.0 }}
+{{- end }}
 {{- end }}

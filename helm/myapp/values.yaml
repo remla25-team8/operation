@@ -5,9 +5,21 @@ appImage:
   tag: "1.1.4"
   pullPolicy: IfNotPresent
 
+# Configuration for v2 app deployment
+appImageV2:
+  repository: ghcr.io/remla25-team8/app
+  tag: "1.1.4"  # TODO: change to v2 version
+  pullPolicy: IfNotPresent
+
 modelImage:
   repository: ghcr.io/remla25-team8/model-service
   tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+# V2 Model Service configuration
+modelImageV2:
+  repository: ghcr.io/remla25-team8/model-service
+  tag: "1.0.0"  # TODO: change to v2 version
   pullPolicy: IfNotPresent
 
 namePrefix: ""
@@ -26,7 +38,7 @@ modelService:
   name: model-service
   port: 5000
   targetPort: 5000
-  type: ClusterIP
+  type: ClusterIP  # Internal only - not exposed externally
 
 ingress:
   enabled: false
@@ -134,3 +146,12 @@ resources: {}
   # requests:
   #   cpu: 200m
   #   memory: 256Mi
+
+# Shadow Launch Configuration (Traffic Mirroring for Testing)
+shadowLaunch:
+  enabled: false  # Set to true to enable shadow testing
+  mirrorPercentage: 100.0  # Percentage of traffic to mirror (0-100)
+  image:
+    repository: ghcr.io/remla25-team8/model-service
+    tag: "1.0.0"  #TODO: change to shadow version
+    pullPolicy: IfNotPresent
