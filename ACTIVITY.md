@@ -114,12 +114,12 @@ Created PR: https://github.com/remla25-team8/operation/pull/30 (assignment5) <br
 Approved PR: https://github.com/remla25-team8/operation/pull/31 (assignment5)
 
 -- Cristian Perlog: --
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/operation/pull/31 (assignment 5) <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/33 (assignment 5)
 
 -- Todor Mladenovic: --
-Created PR: https://github.com/remla25-team8/operation/pull/33
-Approved PR: https://github.com/remla25-team8/operation/pull/34
+Created PR: https://github.com/remla25-team8/operation/pull/33 (assignment 5)
+Approved PR: https://github.com/remla25-team8/operation/pull/34 (assignment 5)
 
 -- Xinyu Gao: --
 Created PR: <br>
