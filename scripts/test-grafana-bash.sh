@@ -7,6 +7,7 @@
 # Configurable parameters
 NUM_REQUESTS=${1:-30}  # Number of requests to send (default: 30)
 HOST=${2:-dev.myapp.local}  # Application host (default: dev.myapp.local)
+INGRESS_IP="192.168.56.91"  # Istio Ingress IP
 PORT=80  # Port (default: 80)
 DELAY=0.5  # Delay between requests in seconds (default: 0.5)
 
@@ -43,7 +44,8 @@ send_analyze_request() {
   local review=$1
   echo "Sending analysis request for: \"${review:0:30}...\""
   
-  curl -s -X POST "http://$HOST:$PORT/analyze" \
+  curl -s -X POST "http://$INGRESS_IP:$PORT/analyze" \
+    -H "Host: $HOST" \
     -H "Content-Type: application/json" \
     -d "{\"review\":\"$review\"}" > /dev/null
   
@@ -58,7 +60,8 @@ send_feedback_request() {
   
   echo "Sending feedback: prediction=$prediction, actual=$actual"
   
-  curl -s -X POST "http://$HOST:$PORT/feedback" \
+  curl -s -X POST "http://$INGRESS_IP:$PORT/feedback" \
+    -H "Host: $HOST" \
     -H "Content-Type: application/json" \
     -d "{\"review\":\"$review\",\"prediction\":$prediction,\"actual_sentiment\":$actual}" > /dev/null
   
@@ -76,10 +79,10 @@ echo "====================================================="
 
 # Verify that the application is reachable
 echo "Verifying application is reachable..."
-if curl -s -I "http://$HOST:$PORT" > /dev/null; then
+if curl -s -I "http://$INGRESS_IP:$PORT" -H "Host: $HOST" > /dev/null; then
   echo "Application is reachable, proceeding with test!"
 else
-  echo "ERROR: Cannot reach the application at http://$HOST:$PORT"
+  echo "ERROR: Cannot reach the application at http://$INGRESS_IP:$PORT (Host: $HOST)"
   echo "Verify that the application is running and the hostname is correct."
   echo "If you're using a custom hostname, make sure you've added it to your /etc/hosts file."
   exit 1
