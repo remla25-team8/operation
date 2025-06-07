@@ -127,5 +127,27 @@ Approved PR: https://github.com/remla25-team8/operation/pull/34 (assignment 5)
 
 
 
+# Week 7:
+
+-- Lorenzo: --
+Created PR: https://github.com/remla25-team8/operation/pull/37 <br>
+Approved PR:
+
+-- Yongcheng Huang: --
+Created PR:  <br>
+Approved PR:
+
+-- Cristian Perlog: --
+Created PR:  <br>
+Approved PR:
+
+-- Todor Mladenovic: --
+Created PR:  <br>
+Approved PR:
+
+-- Xinyu Gao: --
+Created PR:  <br>
+Approved PR:
+
 
 
