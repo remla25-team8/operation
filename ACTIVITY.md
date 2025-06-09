@@ -138,8 +138,8 @@ Created PR:  <br>
 Approved PR:
 
 -- Cristian Perlog: --
-Created PR:  <br>
-Approved PR:
+Created PR: https://github.com/remla25-team8/operation/pull/38 (assignment 5)  <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/37 (assignment 2)
 
 -- Todor Mladenovic: --
 Created PR:  <br>
