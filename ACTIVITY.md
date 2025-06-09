@@ -132,6 +132,8 @@ Approved PR: https://github.com/remla25-team8/operation/pull/34 (assignment 5)
 -- Lorenzo: --
 Created PR: https://github.com/remla25-team8/operation/pull/37 <br>
 Approved PR:
+ - https://github.com/remla25-team8/operation/pull/38
+ - https://github.com/remla25-team8/model-service/pull/6 
 
 -- Yongcheng Huang: --
 Created PR:  <br>
