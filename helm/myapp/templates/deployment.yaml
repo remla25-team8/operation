@@ -1,18 +1,22 @@
+# v1 App Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "myapp.fullname" . }}
+  name: {{ include "myapp.fullname" . }}-v1
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
+    version: v1
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "myapp.labels" . | nindent 6 }}
+      {{- include "myapp.appSelectorLabels" . | nindent 6 }}
+      version: v1
   template:
     metadata:
       labels:
-        {{- include "myapp.labels" . | nindent 8 }}
+        {{- include "myapp.appSelectorLabels" . | nindent 8 }}
+        version: v1
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -20,8 +24,8 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
+          imagePullPolicy: {{ .Values.appImage.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: http
@@ -38,3 +42,158 @@ spec:
                   key: smtpPassword
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+---
+# v1 Model Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namePrefix }}-model-service-v1
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "myapp.modelSelectorLabels" . | nindent 6 }}
+      version: v1
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.modelSelectorLabels" . | nindent 8 }}
+        version: v1
+    spec:
+      containers:
+        - name: model-service-v1
+          image: "{{ .Values.modelImage.repository }}:{{ .Values.modelImage.tag }}"
+          imagePullPolicy: {{ .Values.modelImage.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.modelService.targetPort }}
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+# v2 App Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.fullname" . }}-v2
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    version: v2
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "myapp.appSelectorLabels" . | nindent 6 }}
+      version: v2
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.appSelectorLabels" . | nindent 8 }}
+        version: v2
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.service.targetPort }}"
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.appImageV2.repository }}:{{ .Values.appImageV2.tag }}"
+          imagePullPolicy: {{ .Values.appImageV2.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+              name: http
+          env:
+            - name: MODEL_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-config
+                  key: modelServiceUrl
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "myapp.fullname" . }}-secret
+                  key: smtpPassword
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+# v2 Model Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namePrefix }}-model-service-v2
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "myapp.modelSelectorLabels" . | nindent 6 }}
+      version: v2
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.modelSelectorLabels" . | nindent 8 }}
+        version: v2
+    spec:
+      containers:
+        - name: model-service-v2
+          image: "{{ .Values.modelImageV2.repository }}:{{ .Values.modelImageV2.tag }}"
+          imagePullPolicy: {{ .Values.modelImageV2.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.modelService.targetPort }}
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+{{- if .Values.shadowLaunch.enabled }}
+---
+# Shadow Model Service Deployment (for testing with traffic mirroring)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.namePrefix }}-model-service-shadow
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: shadow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "myapp.modelSelectorLabels" . | nindent 6 }}
+      version: shadow
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.modelSelectorLabels" . | nindent 8 }}
+        version: shadow
+    spec:
+      containers:
+        - name: model-service-shadow
+          image: "{{ .Values.shadowLaunch.image.repository }}:{{ .Values.shadowLaunch.image.tag }}"
+          imagePullPolicy: {{ .Values.shadowLaunch.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.modelService.targetPort }}
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+{{- end }}

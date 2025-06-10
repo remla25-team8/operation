@@ -1,0 +1,37 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "myapp.fullname" . }}
+  namespace: default
+spec:
+  host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+---
+# DestinationRule for model service internal routing
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-dr
+  namespace: default
+spec:
+  host: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+{{- if .Values.shadowLaunch.enabled }}
+  - name: shadow
+    labels:
+      version: shadow
+{{- end }}
+{{- end }}

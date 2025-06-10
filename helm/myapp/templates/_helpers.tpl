@@ -35,7 +35,6 @@ Common labels
 */}}
 {{- define "myapp.labels" -}}
 helm.sh/chart: {{ include "myapp.chart" . }}
-{{ include "myapp.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,11 +45,21 @@ app.kubernetes.io/prefix: {{ .Values.namePrefix }}
 {{- end }}
 
 {{/*
-Selector labels
+App-specific selector labels
 */}}
-{{- define "myapp.selectorLabels" -}}
+{{- define "myapp.appSelectorLabels" -}}
 app.kubernetes.io/name: {{ include "myapp.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+component: app
+{{- end }}
+
+{{/*
+Model service-specific selector labels
+*/}}
+{{- define "myapp.modelSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "myapp.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+component: model-service
 {{- end }}
 
 {{/*

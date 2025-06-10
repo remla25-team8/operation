@@ -1,8 +1,25 @@
 replicaCount: 1
 
-image:
+appImage:
   repository: ghcr.io/remla25-team8/app
-  tag: "1.1.4"
+  tag: "1.1.5"
+  pullPolicy: IfNotPresent
+
+# Configuration for v2 app deployment
+appImageV2:
+  repository: ghcr.io/remla25-team8/app
+  tag: "2.0.0"
+  pullPolicy: IfNotPresent
+
+modelImage:
+  repository: ghcr.io/remla25-team8/model-service
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+# V2 Model Service configuration
+modelImageV2:
+  repository: ghcr.io/remla25-team8/model-service
+  tag: "1.0.0"  # TODO: change to v2 version
   pullPolicy: IfNotPresent
 
 namePrefix: ""
@@ -12,13 +29,19 @@ serviceAccount:
   name: ""
 
 service:
-  name: model-service
+  name: app-service
   port: 8080
   targetPort: 8080
   type: ClusterIP
 
+modelService:
+  name: model-service
+  port: 5000
+  targetPort: 5000
+  type: ClusterIP  # Internal only - not exposed externally
+
 ingress:
-  enabled: true
+  enabled: false
   host: ""
   path: /
   className: nginx
@@ -98,7 +121,7 @@ grafana:
 
 
 configMap:
-  modelServiceUrl: http://model-service:8080
+  modelServiceUrl: http://model-service:5000
 
 secret:
   smtpPassword: ""
@@ -109,6 +132,13 @@ autoscaling:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
 
+  
+istio:
+       enabled: true
+       host: app.local
+       sticky:
+         userId: test-user
+
 resources: {}
   # limits:
   #   cpu: 500m
@@ -116,3 +146,12 @@ resources: {}
   # requests:
   #   cpu: 200m
   #   memory: 256Mi
+
+# Shadow Launch Configuration (Traffic Mirroring for Testing)
+shadowLaunch:
+  enabled: false  # Set to true to enable shadow testing
+  mirrorPercentage: 100.0  # Percentage of traffic to mirror (0-100)
+  image:
+    repository: ghcr.io/remla25-team8/model-service
+    tag: "1.0.0"  #TODO: change to shadow version
+    pullPolicy: IfNotPresent
