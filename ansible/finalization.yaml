@@ -214,7 +214,12 @@
           - "3. Access the dashboard at https://dashboard.local (note: using HTTPS)"
           - "4. You may need to accept the self-signed certificate warning in your browser"
 
-    # Step 23: Install Istio using Helm
+
+
+
+
+
+# Step 23: Install Istio using Helm
     - name: Add Istio Helm repository
       kubernetes.core.helm_repository:
         name: istio
@@ -275,13 +280,6 @@
       shell: kubectl --kubeconfig={{ kubeconfig }} wait --for=condition=ready pod -l app=istiod -n istio-system --timeout=120s
       changed_when: false
 
-    - name: Instructions for Istio
-      debug:
-        msg:
-          - "Istio has been deployed using Helm according to the official documentation."
-          - "The control plane (istiod) is installed in istio-system namespace."
-          - "The ingress gateway is installed in istio-ingress namespace."
-
     - name: Enable Istio sidecar injection for default namespace
       kubernetes.core.k8s:
         state: present
@@ -293,6 +291,93 @@
             labels:
               istio-injection: enabled
         kubeconfig: "{{ kubeconfig }}"
+
+    # Configure Istio Gateway with fixed IP and HTTPS support
+    - name: Configure Istio Gateway with fixed IP
+      shell: |
+        SVC_NAME=$(kubectl --kubeconfig={{ kubeconfig }} get svc -n istio-ingress --no-headers -o custom-columns=":metadata.name" | head -1)
+        if [ -n "$SVC_NAME" ]; then
+          kubectl --kubeconfig={{ kubeconfig }} patch svc $SVC_NAME -n istio-ingress -p '{"spec":{"loadBalancerIP":"192.168.56.91"}}'
+          echo "Patched service: $SVC_NAME"
+        else
+          echo "No service found in istio-ingress namespace"
+        fi
+      register: istio_patch_result
+      changed_when: true
+
+    - name: Generate TLS certificate for Istio HTTPS
+      shell: |
+        mkdir -p /tmp/istio-certs
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+          -keyout /tmp/istio-certs/tls.key \
+          -out /tmp/istio-certs/tls.crt \
+          -subj "/CN=*.local/O=istio-gateway/C=NL"
+      args:
+        creates: /tmp/istio-certs/tls.crt
+
+    - name: Create TLS secret for Istio Gateway
+      shell: |
+        kubectl --kubeconfig={{ kubeconfig }} create secret tls istio-gateway-tls \
+          --cert=/tmp/istio-certs/tls.crt \
+          --key=/tmp/istio-certs/tls.key \
+          -n istio-ingress \
+          --dry-run=client -o yaml | kubectl --kubeconfig={{ kubeconfig }} apply -f -
+      changed_when: true
+
+    - name: Create Istio HTTPS Gateway with correct selector
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.istio.io/v1alpha3
+          kind: Gateway
+          metadata:
+            name: https-gateway
+            namespace: istio-ingress
+          spec:
+            selector:
+              istio: ingress  # FIXED: Correct selector
+            servers:
+            - port:
+                number: 443
+                name: https
+                protocol: HTTPS
+              tls:
+                mode: SIMPLE
+                credentialName: istio-gateway-tls
+              hosts:
+              - "*"
+            - port:
+                number: 80
+                name: http
+                protocol: HTTP
+              hosts:
+              - "*"
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Remove duplicate Istio service if exists
+      shell: |
+        if kubectl --kubeconfig={{ kubeconfig }} get svc istio-ingressgateway -n istio-ingress >/dev/null 2>&1; then
+          kubectl --kubeconfig={{ kubeconfig }} delete svc istio-ingressgateway -n istio-ingress
+          echo "Removed duplicate istio-ingressgateway service"
+        else
+          echo "No duplicate service found"
+        fi
+      register: cleanup_result
+      changed_when: "'Removed duplicate' in cleanup_result.stdout"
+
+    - name: Final Istio configuration status
+      debug:
+        msg:
+          - "Istio Gateway configured successfully"
+          - "HTTP/HTTPS IP: 192.168.56.91"
+          - "Certificate: Self-signed for *.local domains"
+          - "Gateway: https-gateway in istio-ingress namespace"
+          - "Cleanup: {{ cleanup_result.stdout }}"
+
+
+
+
+
 
     - name: Create monitoring namespace
       kubernetes.core.k8s:
