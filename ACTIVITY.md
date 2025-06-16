@@ -136,8 +136,8 @@ Approved PR:
  - https://github.com/remla25-team8/model-service/pull/6 
 
 -- Yongcheng Huang: --
-Created PR: https://github.com/remla25-team8/model-service/pull/6 <br>
-Approved PR: https://github.com/remla25-team8/operation/pull/37
+Created PR: https://github.com/remla25-team8/model-service/pull/6 (assignment1) <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/37 (assignment2)
 
 -- Cristian Perlog: --
 Created PR: https://github.com/remla25-team8/operation/pull/38 (assignment 5)  <br>
@@ -160,8 +160,8 @@ Approved PR:
 
 
 -- Yongcheng Huang: --
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/operation/pull/41 (assignment 1)<br>
+Approved PR: https://github.com/remla25-team8/operation/pull/40 (assignment 5)
 
 -- Cristian Perlog: --
 Created PR: https://github.com/remla25-team8/operation/pull/40 (assignment 5)  <br>
