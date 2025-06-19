@@ -63,8 +63,16 @@ The experiment will be considered successful if:
 Grafana dashboard showing:
 1. Real-time average session duration by version
 2. Historical trends
-3. Distribution of session durations
-4. Statistical significance indicators
+3. Statistical significance indicators
+
+## Experiment Results
+
+Below is a screenshot of the Grafana dashboard showing the comparison of average session duration between version 1.1.5 (control) and version 2.0.2 (experiment):
+
+![Average Session Duration Comparison](images/experiment.png)
+
+Based on the metrics captured in this visualization, we can determine whether version 2.0.2 achieves the target of a 20% increase in average session duration compared to version 1.1.5.
+
 
 ## Notes
 - Focus solely on session duration as engagement metric
