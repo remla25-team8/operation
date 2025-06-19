@@ -6,6 +6,7 @@
 
   Vagrant.configure("2") do |config|
     config.vm.box = "bento/ubuntu-24.04"
+    config.ssh.insert_key = false
 
     # Sync host's ./shared folder to /shared in all VMs
     config.vm.synced_folder "./shared", "/mnt/shared"
@@ -17,6 +18,7 @@
       ctrl.vm.provider "virtualbox" do |vb|
         vb.memory = MEMORY_CONTROLLER
         vb.cpus = CPU_CONTROLLER
+        vb.linked_clone = true
       end
     end
     
@@ -49,7 +51,7 @@
     
     # Single provisioner that runs after all machines are created
     # This will execute our main playbook that handles all the steps in sequence
-    config.vm.provision "ansible" do |ansible|
+    config.vm.provision :ansible do |ansible|
       ansible.playbook = "ansible/main-playbook.yaml"
       ansible.groups = ansible_groups
       ansible.extra_vars = ansible_vars

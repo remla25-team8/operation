@@ -19,7 +19,7 @@
     - name: Ping each worker node to establish TCP connection
       ansible.builtin.shell: |
         echo "Establishing connection to worker node {{ item }}"
-        ping -c 5 192.168.56.{{ 100 + worker_nodes.index(item) + 1 }}
+        ping -c 1 192.168.56.{{ 100 + worker_nodes.index(item) + 1 }}
       register: ping_result
       with_items: "{{ worker_nodes }}"
       changed_when: false
@@ -33,7 +33,7 @@
     - name: Ping host machine
       ansible.builtin.shell: |
         echo "Attempting to ping host machine at 192.168.56.1"
-        ping -c 5 192.168.56.1
+        ping -c 1 192.168.56.1
       register: host_ping_result
       changed_when: false
       ignore_errors: true
