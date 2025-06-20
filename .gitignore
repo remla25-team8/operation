@@ -48,3 +48,22 @@ Temporary Items
 
 ### Vagrant Patch ###
 *.box
+
+### Docker Compose ###
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Secrets and sensitive data
+secrets/*.json
+secrets/*.key
+secrets/*.pem
+secrets/*.crt
+
+# Docker volumes
+volumes/
+
+# Logs
+logs/
+*.log
