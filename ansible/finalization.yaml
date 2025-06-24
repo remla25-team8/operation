@@ -214,12 +214,7 @@
           - "3. Access the dashboard at https://dashboard.local (note: using HTTPS)"
           - "4. You may need to accept the self-signed certificate warning in your browser"
 
-
-
-
-
-
-# Step 23: Install Istio using Helm
+    # Step 23: Install Istio using Helm
     - name: Add Istio Helm repository
       kubernetes.core.helm_repository:
         name: istio
@@ -373,11 +368,6 @@
           - "Certificate: Self-signed for *.local domains"
           - "Gateway: https-gateway in istio-ingress namespace"
           - "Cleanup: {{ cleanup_result.stdout }}"
-
-
-
-
-
 
     - name: Create monitoring namespace
       kubernetes.core.k8s:
