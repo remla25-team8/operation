@@ -10,6 +10,7 @@ spec:
   gateways:
   - istio-ingress/{{ include "myapp.fullname" . }}-gateway
   http:
+  # Route specific test user to v2
   - match:
     - headers:
         x-user-id:
@@ -18,7 +19,39 @@ spec:
     - destination:
         host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v2
-  - route:
+    headers:
+      response:
+        set:
+          Set-Cookie: "version=v2; Path=/; Max-Age=3600; HttpOnly"
+
+  # Direct route static assets based on the version cookie if present
+  - match:
+    - uri:
+        prefix: "/static/"
+      headers:
+        cookie:
+          regex: ".*version=v1.*"
+    route:
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
+        subset: v1
+
+  - match:
+    - uri:
+        prefix: "/static/"
+      headers:
+        cookie:
+          regex: ".*version=v2.*"
+    route:
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
+        subset: v2
+
+  # For static assets without a version cookie, use 90/10 distribution
+  - match:
+    - uri:
+        prefix: "/static/"
+    route:
     - destination:
         host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v1
@@ -27,6 +60,28 @@ spec:
         host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
         subset: v2
       weight: 10
+           
+  # For main app traffic, use 90/10 distribution
+  - route:
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
+        subset: v1
+      weight: 90
+      headers:
+        response:
+          set:
+            Set-Cookie: "version=v1; Path=/; Max-Age=3600; HttpOnly"
+    - destination:
+        host: {{ .Values.namePrefix }}-{{ .Values.service.name }}
+        subset: v2
+      weight: 10
+      headers:
+        response:
+          set:
+            Set-Cookie: "version=v2; Path=/; Max-Age=3600; HttpOnly"
+    corsPolicy:
+      allowOrigins:
+      - exact: "http://{{ .Values.istio.host }}"
 ---
 # Internal VirtualService for model-service routing based on source app version
 apiVersion: networking.istio.io/v1beta1
