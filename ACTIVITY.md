@@ -167,8 +167,8 @@ Created PR: https://github.com/remla25-team8/operation/pull/40 (assignment 5) <b
 Approved PR: https://github.com/remla25-team8/lib-ml/pull/4  (assignment 1)
 
 -- Todor Mladenovic: --
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/model-training/pull/10
+Approved PR: https://github.com/remla25-team8/app/pull/11
 
 -- Xinyu Gao: --
 Created PR:  <br>
@@ -189,8 +189,8 @@ Created PR: https://github.com/remla25-team8/operation/pull/38 (assignment 5) <b
 Approved PR: https://github.com/remla25-team8/model-training/pull/11 (assignment 4)
 
 -- Todor Mladenovic: --
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/operation/pull/44
+Approved PR: https://github.com/remla25-team8/operation/pull/43
 
 -- Xinyu Gao: --
 Created PR:  <br>
