@@ -50,6 +50,73 @@ This repository orchestrates the deployment of our Restaurant Sentiment Analysis
 
 Note: Never share or commit your private key. Keep it secure on your local machine only.
 
+### Running with Docker
+
+One way to run the application is using Docker Compose.
+
+#### Quick Start with Docker Compose
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/remla25-team8/operation.git
+   cd operation
+   ```
+
+2. **Set up environment (if needed):**
+   ```bash
+   # Create .env file from template if it doesn't exist
+   cp .env.template .env
+   # Edit .env file with your configuration
+   ```
+
+3. **Create secrets directory:**
+   ```bash
+   mkdir -p secrets
+   # Create a dummy model config (or use your actual config)
+   echo '{"model": "dummy"}' > secrets/model_config.json
+   ```
+4. **Login to GHCR:**
+echo <YOUR_GH_TOKEN> | docker login ghcr.io -u <YOUR_GITHUB_USERNAME> --password-stdin
+
+5. **Start the services:**
+   ```bash
+   docker-compose up -d
+   ```
+
+6. **Check service status (optional):**
+   ```bash
+   docker-compose ps
+   ```
+
+7. **Access the application:**
+   - **Frontend:** http://localhost:8080
+   - **Information about app and model service:** http://localhost:8080/info
+   - **API Documentation:** http://localhost:8080/api/docs
+
+#### Docker Compose Commands
+
+```bash
+# If any command gives a permission denied error, using sudo before the commands will work.
+
+# Start services
+docker-compose up
+
+# Stop services
+docker-compose down
+
+# Restart services
+docker-compose restart
+
+# Stop all running containers (forcefully if needed)
+docker-compose down --volumes --remove-orphans
+
+# Prune unused networks (optional, but can help)
+docker network prune -f
+
+# Rebuild and start services
+docker-compose up --build -d
+```
+
 ### Low Requirements Testing
 
 For testing with minimal requirements, we provide a bash script that sets up a basic environment. This is useful for quick testing or when you don't want to use the full Vagrant/Ansible setup.
@@ -71,7 +138,6 @@ The script will:
 - Provide instructions for accessing the application
 
 Note: This setup is for testing purposes only and doesn't include all features of the full deployment.
-
 
 ### Configuring Host Access
 
@@ -188,3 +254,57 @@ During this phase, following tasks were implemented:
 - Kubernetes migration with Helm chart.
 - Monitoring Stack including Metrics, Alerting, Prometheus and Grafana.
 - Documentation for each of the above.
+
+### Assignment A4
+During this phase, we implemented comprehensive ML Testing and Configuration Management following the ML Test Score methodology.
+- Automated Tests
+- Continuous Training Pipeline
+- Project Organization
+- Pipeline Management with DVC
+- Code Quality
+
+### Assignment A5
+During this phase, we implemented advanced Traffic Management, Continuous Experimentation, and comprehensive Documentation.
+
+#### Traffic Management
+- **Gateway and VirtualService Implementation**: Complete Istio Gateway and VirtualService configuration
+- **Application Accessibility**: Application accessible through IngressGateway with proper host routing
+- **DestinationRules and Weighted Routing**: Implemented 90/10 traffic distribution between app versions
+- **Version Consistency**: Model-service and app versions properly synchronized across deployments
+- **Sticky Sessions**: Full implementation of sticky sessions using x-user-id headers and version cookies
+  - Requests from same origin maintain stable routing
+  - Cookie-based session persistence for consistent user experience
+  - Header-based routing for specific test users
+
+#### Additional Use Case - Shadow Launch
+- **Traffic Mirroring**: Implemented shadow launch capability for safe production testing
+- **Mirror Configuration**: 100% traffic mirroring to shadow model service
+- **Non-intrusive Testing**: Production traffic mirrored without affecting user experience
+- **Metrics Collection**: Comprehensive metrics collection from both production and shadow services
+- **A/B Testing Support**: Foundation for advanced A/B testing scenarios
+
+#### Continuous Experimentation
+- **Experiment Documentation**: Comprehensive documentation in `docs/continuous-experimentation.md`
+- **Two-Version Deployment**: Both v1 and v2 versions deployed and accessible
+- **Hypothesis-Driven Testing**: Clear experiment design with measurable hypotheses
+- **Metrics Implementation**: Custom metrics for experiment evaluation
+- **Prometheus Integration**: Metrics automatically collected by Prometheus
+- **Grafana Dashboard**: Importable dashboard (`restaurant-sentiment-dashboard.json`) for experiment visualization
+- **Decision Process**: Detailed criteria for experiment acceptance/rejection
+- **Visual Documentation**: Screenshots and diagrams supporting decision-making process
+
+#### Documentation
+- **Deployment Documentation**: Comprehensive `docs/deployment.md` with:
+  - Complete deployment structure and entity relationships
+  - Detailed data flow diagrams with dynamic routing points
+  - Visual Mermaid diagrams for component interactions
+  - 90/10 split and sticky session routing explanations
+  - Resource type coverage with clear relations
+- **Extension Proposal**: Release engineering extension in `docs/extension.md`:
+  - Identified critical shortcoming: lack of automated release validation
+  - Proposed Release Validation Pipeline addressing the gap
+  - External source citations (Dynatrace blog)
+  - Objective measurement criteria for improvement validation
+  - General applicability beyond the current project scope
+- **Visual Appeal**: Professional documentation with clear diagrams and structured content
+- **Team Onboarding**: Documentation enables new team members to contribute effectively

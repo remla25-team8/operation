@@ -158,13 +158,12 @@ Approved PR:
 Created PR: <br>
 Approved PR:
 
-
 -- Yongcheng Huang: --
-Created PR: <br>
-Approved PR: 
+Created PR: https://github.com/remla25-team8/operation/pull/41 <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/40 (assignment 5)
 
 -- Cristian Perlog: --
-Created PR: https://github.com/remla25-team8/operation/pull/40 (assignment 5)  <br>
+Created PR: https://github.com/remla25-team8/operation/pull/40 (assignment 5) <br>
 Approved PR: https://github.com/remla25-team8/lib-ml/pull/4  (assignment 1)
 
 -- Todor Mladenovic: --
@@ -175,3 +174,24 @@ Approved PR:
 Created PR:  <br>
 Approved PR:
 
+# Week 9:
+
+-- Lorenzo: --
+Created PR: <br>
+Approved PR: https://github.com/remla25-team8/operation/pull/41 (assignment 1)
+
+-- Yongcheng Huang: --
+Created PR: <br>
+Approved PR: 
+
+-- Cristian Perlog: --
+Created PR: https://github.com/remla25-team8/operation/pull/38 (assignment 5) <br>
+Approved PR: https://github.com/remla25-team8/model-training/pull/11 (assignment 4)
+
+-- Todor Mladenovic: --
+Created PR: <br>
+Approved PR: 
+
+-- Xinyu Gao: --
+Created PR:  <br>
+Approved PR:

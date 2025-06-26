@@ -15,7 +15,7 @@ This repository contains the Kubernetes and Helm configurations for the *Restaur
    - Disabled Nginx Ingress in `helm/myapp/values.yaml` (`ingress.enabled: false`) to prevent conflicts.
 
 3. **Virtual Services and Sticky Sessions**:
-   - Added `helm/myapp/templates/virtualservice.yaml` to configure Virtual Services for the `app` service, implementing a 90/10 canary release (90% to v1: `ghcr.io/remla25-team8/app:1.1.4`, 10% to v2: `ghcr.io/remla25-team8/app:2.0.0`).
+   - Added `helm/myapp/templates/virtualservice.yaml` to configure Virtual Services for the `app` service, implementing a 90/10 canary release (90% to v1: `ghcr.io/remla25-team8/app:1.1.5`, 10% to v2: `ghcr.io/remla25-team8/app:2.0.3`).
    - Implemented Sticky Sessions using the `x-user-id` header, routing requests with `x-user-id: test-user` to v2.
    - Updated `helm/myapp/values.yaml` with `istio` settings (`enabled`, `host: app.local`, `sticky.userId: test-user`).
 
@@ -33,7 +33,7 @@ This repository contains the Kubernetes and Helm configurations for the *Restaur
    - Go through steps in main README up to but not including helm install
    <!-- - Verify Istio installation: `kubectl get pods -n istio-system` (expect `istio-ingressgateway` running).
    - Add `192.168.56.90 app.local` to `/etc/hosts` (local or Vagrant host, assuming MetalLB IP from A2).
-   - Ensure `app` v2 image (`ghcr.io/remla25-team8/app:2.0.0`) is available. -->
+   - Ensure `app` v2 image (`ghcr.io/remla25-team8/app:2.0.3`) is available. -->
 
 2. **Deploy Helm Chart**:
    ```bash
@@ -45,7 +45,7 @@ This repository contains the Kubernetes and Helm configurations for the *Restaur
    bash helm/myapp/tests/sticky-session-test.sh
    ```
    - **Expected Output**:
-     - First loop (10 requests): ~90% route to v1 (`1.1.4`), ~10% to v2 (`2.0.0`). Check response differences (e.g., version-specific headers, if implemented).
+     - First loop (10 requests): ~90% route to v1 (`1.1.5`), ~10% to v2 (`2.0.3`). Check response differences (e.g., version-specific headers, if implemented).
      - Second loop (5 requests): All requests with `x-user-id: test-user` route to v2.
 
 4. **Manual Testing:**:
