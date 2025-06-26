@@ -14,12 +14,12 @@ spec:
   - name: {{ include "myapp.fullname" . }}.rules
     rules:
     - alert: HighRequestRate
-      expr: sum(rate(flask_http_request_total{service="{{ .Values.service.name }}-{{ include "myapp.fullname" . }}"}[1m])) > 15
+      expr: sum(rate(flask_http_request_total{service="{{ include "myapp.fullname" . }}-app-service"}[1m])) > 15
       for: 2m
       labels:
         severity: warning
       annotations:
         summary: "High request rate detected"
-        description: "Service {{ .Values.service.name }}-{{ include "myapp.fullname" . }} has received more than 15 requests per minute for the last 2 minutes"
+        description: "Service {{ include "myapp.fullname" . }}-app-service has received more than 15 requests per minute for the last 2 minutes"
         runbook_url: "https://example.com/runbooks/high-traffic"
 {{- end }} 
