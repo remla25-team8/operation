@@ -1,0 +1,65 @@
+services:
+  app-service:
+    image: ${APP_IMAGE:-ghcr.io/remla25-team8/app:1.1.5}
+    container_name: remla-app
+    ports:
+      - "8080:8080"
+    environment:
+      - MODEL_SERVICE_URL=http://model-service:5000
+      - NODE_ENV=${NODE_ENV:-production}
+      - APP_PORT=8080
+    volumes:
+      - app-logs:/app/logs
+      - ./shared-data:/app/shared:ro
+    restart: unless-stopped
+    depends_on:
+      - model-service
+    networks:
+      - remla-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  model-service:
+    image: ${MODEL_IMAGE:-ghcr.io/remla25-team8/model-service:1.0.0}
+    container_name: remla-model
+    expose:
+      - "5000"
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - MODEL_PATH=/app/models
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - model-data:/app/models
+      - ./shared-data:/app/shared:ro
+    restart: unless-stopped
+    networks:
+      - remla-network
+    secrets:
+      - model_config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  app-logs:
+    driver: local
+  model-data:
+    driver: local
+
+networks:
+  remla-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+secrets:
+  model_config:
+    file: ./secrets/model_config.json
