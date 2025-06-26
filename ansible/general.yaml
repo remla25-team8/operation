@@ -28,8 +28,6 @@
         - gnupg
         - lsb-release
         # - python3-pip
-      async: 500
-      poll: 0
 
     - name: Generate Ansible inventory file # from templates/inventory.cfg.j2
       template:
