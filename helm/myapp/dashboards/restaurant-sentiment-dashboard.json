@@ -362,9 +362,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(session_duration_seconds_sum{version=\"2.0.2\"}[$__rate_interval]) / rate(session_duration_seconds_count{version=\"2.0.2\"}[$__rate_interval])",
+          "expr": "rate(session_duration_seconds_sum{version=\"2.0.3\"}[$__rate_interval]) / rate(session_duration_seconds_count{version=\"2.0.3\"}[$__rate_interval])",
           "instant": false,
-          "legendFormat": "Version 2.0.2",
+          "legendFormat": "Version 2.0.3",
           "range": true,
           "refId": "B"
         }

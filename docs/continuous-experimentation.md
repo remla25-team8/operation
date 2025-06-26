@@ -67,11 +67,11 @@ Grafana dashboard showing:
 
 ## Experiment Results
 
-Below is a screenshot of the Grafana dashboard showing the comparison of average session duration between version 1.1.5 (control) and version 2.0.2 (experiment):
+Below is a screenshot of the Grafana dashboard showing the comparison of average session duration between version 1.1.5 (control) and version 2.0.3 (experiment):
 
 ![Average Session Duration Comparison](images/experiment.png)
 
-Based on the metrics captured in this visualization, we can determine whether version 2.0.2 achieves the target of a 20% increase in average session duration compared to version 1.1.5.
+Based on the metrics captured in this visualization, we can determine whether version 2.0.3 achieves the target of a 20% increase in average session duration compared to version 1.1.5.
 
 
 ## Notes
