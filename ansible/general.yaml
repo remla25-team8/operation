@@ -28,8 +28,6 @@
         - gnupg
         - lsb-release
         # - python3-pip
-      async: 500
-      poll: 5
 
     - name: Generate Ansible inventory file # from templates/inventory.cfg.j2
       template:
@@ -50,13 +48,6 @@
         mode: "0644"
 
     # Step 4: Register SSH Keys
-    - name: Ensure .ssh directory exists
-      file:
-        path: /home/vagrant/.ssh
-        state: directory
-        owner: vagrant
-        group: vagrant
-        mode: "0700"
 
     - name: Add SSH public keys
       authorized_key:
@@ -71,19 +62,22 @@
         - "files/ssh_keys/todor.pub"
         - "files/ssh_keys/cristian.pub"
         # Add your public ssh keys (at least two)
+      async: 45
+      poll: 0
 
     # Step 5: Disable SWAP
-    - name: Disable SWAP for current session
-      ansible.builtin.shell:
-        cmd: swapoff -a
-      changed_when: false
-      failed_when: false
-
-    - name: Remove SWAP entry from /etc/fstab
-      ansible.builtin.lineinfile:
-        path: /etc/fstab
-        regexp: '^[^#].*\sswap\s'
-        state: absent
+    - name: disable SWAP
+      block:
+        - name: Disable SWAP for current session
+          ansible.builtin.shell:
+            cmd: swapoff -a
+          changed_when: false
+          failed_when: false
+        - name: Remove SWAP entry from /etc/fstab
+          ansible.builtin.lineinfile:
+            path: /etc/fstab
+            regexp: '^[^#].*\sswap\s'
+            state: absent
 
     - name: Create k8s.conf for module loading
       ansible.builtin.copy:
@@ -126,6 +120,13 @@
         filename: kubernetes
         update_cache: yes
 
+    - name: Wait for dpkg lock to be released
+      ansible.builtin.shell: |
+        while lsof /var/lib/dpkg/lock-frontend > /dev/null 2>&1; do
+          sleep 1
+        done
+      changed_when: false
+
     - name: Install containerd, runc, and Kubernetes tools
       ansible.builtin.apt:
         name:
@@ -135,7 +136,7 @@
           - kubelet=1.32.4-*
           - kubectl=1.32.4-*
         state: present
-        update_cache: yes
+        update_cache: no
         cache_valid_time: 3600
 
     - name: Hold Kubernetes packages to prevent upgrades
