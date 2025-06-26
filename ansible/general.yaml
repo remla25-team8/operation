@@ -122,6 +122,13 @@
         filename: kubernetes
         update_cache: yes
 
+    - name: Wait for dpkg lock to be released
+      ansible.builtin.shell: |
+        while lsof /var/lib/dpkg/lock-frontend > /dev/null 2>&1; do
+          sleep 1
+        done
+      changed_when: false
+
     - name: Install containerd, runc, and Kubernetes tools
       ansible.builtin.apt:
         name:
