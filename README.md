@@ -50,6 +50,92 @@ This repository orchestrates the deployment of our Restaurant Sentiment Analysis
 
 Note: Never share or commit your private key. Keep it secure on your local machine only.
 
+### Running with Docker
+
+One way to run the application is using Docker Compose.
+
+#### Quick Start with Docker Compose
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/remla25-team8/operation.git
+   cd operation
+   ```
+
+2. **Set up environment (if needed):**
+   ```bash
+   # Create .env file from template if it doesn't exist
+   cp .env.template .env
+   # Edit .env file with your configuration
+   ```
+
+3. **Create secrets directory:**
+   ```bash
+   mkdir -p secrets
+   # Create a dummy model config (or use your actual config)
+   echo '{"model": "dummy"}' > secrets/model_config.json
+   ```
+4. **Login to GHCR:**
+echo <YOUR_GH_TOKEN> | docker login ghcr.io -u <YOUR_GITHUB_USERNAME> --password-stdin
+
+5. **Start the services:**
+   ```bash
+   docker-compose up -d
+   ```
+
+6. **Check service status (optional):**
+   ```bash
+   docker-compose ps
+   ```
+
+7. **Access the application:**
+   - **Frontend:** http://localhost:8080
+   - **Information about app and model service:** http://localhost:8080/info
+   - **API Documentation:** http://localhost:8080/api/docs
+
+#### Docker Compose Commands
+
+```bash
+# If any command gives a permission denied error, using sudo before the commands will work.
+
+# Start services
+docker-compose up
+
+# Stop services
+docker-compose down
+
+# Restart services
+docker-compose restart
+
+# Stop all running containers (forcefully if needed)
+docker-compose down --volumes --remove-orphans
+
+# Prune unused networks (optional, but can help)
+docker network prune -f
+
+# Rebuild and start services
+docker-compose up --build -d
+```
+
+#### Testing the Application
+
+1. **Health Check:**
+   ```bash
+   curl http://localhost:8080/health
+   ```
+
+2. **Sentiment Analysis:**
+   ```bash
+   curl -X POST http://localhost:8080/analyze \
+     -H "Content-Type: application/json" \
+     -d '{"text": "This restaurant is amazing!"}'
+   ```
+
+3. **Get Service Information:**
+   ```bash
+   curl http://localhost:8080/info
+   ```
+
 ### Low Requirements Testing
 
 For testing with minimal requirements, we provide a bash script that sets up a basic environment. This is useful for quick testing or when you don't want to use the full Vagrant/Ansible setup.
@@ -71,7 +157,6 @@ The script will:
 - Provide instructions for accessing the application
 
 Note: This setup is for testing purposes only and doesn't include all features of the full deployment.
-
 
 ### Configuring Host Access
 
