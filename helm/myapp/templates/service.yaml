@@ -30,3 +30,65 @@ spec:
       name: http
   selector:
     {{- include "myapp.modelSelectorLabels" . | nindent 4 }}
+---
+# Model Service V1 (specific for metrics)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}-v1
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v1
+spec:
+  type: {{ .Values.modelService.type }}
+  ports:
+    - port: {{ .Values.modelService.port }}
+      targetPort: {{ .Values.modelService.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "myapp.modelSelectorLabels" . | nindent 4 }}
+    version: v1
+---
+# Model Service V2 (specific for metrics)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}-v2
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v2
+spec:
+  type: {{ .Values.modelService.type }}
+  ports:
+    - port: {{ .Values.modelService.port }}
+      targetPort: {{ .Values.modelService.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "myapp.modelSelectorLabels" . | nindent 4 }}
+    version: v2
+{{- if .Values.shadowLaunch.enabled }}
+---
+# Shadow Model Service (specific for metrics)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.namePrefix }}-{{ .Values.modelService.name }}-shadow
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: shadow
+spec:
+  type: {{ .Values.modelService.type }}
+  ports:
+    - port: {{ .Values.modelService.port }}
+      targetPort: {{ .Values.modelService.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "myapp.modelSelectorLabels" . | nindent 4 }}
+    version: shadow
+{{- end }}

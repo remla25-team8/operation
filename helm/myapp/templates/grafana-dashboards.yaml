@@ -3,14 +3,20 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "myapp.fullname" . }}-grafana-dashboards
-  namespace: {{ .Values.grafana.namespace | default "monitoring" }}
+  namespace: {{ .Values.grafana.namespace }}
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
     grafana_dashboard: "1"  # Label that Grafana looks for to find dashboards
     {{- with .Values.grafana.dashboards.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- with .Values.grafana.dashboards.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
   restaurant-sentiment-dashboard.json: |-
 {{ .Files.Get "dashboards/restaurant-sentiment-dashboard.json" | indent 4 }}
+  model-response-time-dashboard.json: |-
+{{ .Files.Get "dashboards/model-service-response-time-dashboard.json" | indent 4 }}
 {{- end }}

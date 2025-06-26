@@ -65,6 +65,16 @@ prometheusRules:
   additionalLabels:
     release: prometheus  # Match the release name used for Prometheus Operator
 
+# Monitoring thresholds and configuration
+monitoring:
+  responseTime:
+    thresholds:
+      warning: "2.0"    # Warning threshold in seconds for P90 response time
+      critical: "5.0"   # Critical threshold in seconds for P90 response time
+    shadowDegradationThreshold: "0.5"  # 50% degradation threshold for shadow vs normal
+  requestRate:
+    minThreshold: "0.1"  # Minimum expected requests per second
+
 # AlertManager configuration for email alerts
 alertmanager:
   enabled: true

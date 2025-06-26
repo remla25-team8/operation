@@ -22,4 +22,91 @@ spec:
         summary: "High request rate detected"
         description: "Service {{ include "myapp.fullname" . }}-app-service has received more than 15 requests per minute for the last 2 minutes"
         runbook_url: "https://example.com/runbooks/high-traffic"
+    
+    # Model Service Response Time Rules
+    - record: model_service:response_time_seconds:rate5m
+      expr: |
+        rate(flask_http_request_duration_seconds_sum{job=~".*model.*"}[5m]) /
+        rate(flask_http_request_duration_seconds_count{job=~".*model.*"}[5m])
+    
+    - record: model_service:response_time_seconds:p50
+      expr: |
+        histogram_quantile(0.50, 
+          rate(flask_http_request_duration_seconds_bucket{job=~".*model.*"}[5m])
+        )
+    
+    - record: model_service:response_time_seconds:p90
+      expr: |
+        histogram_quantile(0.90, 
+          rate(flask_http_request_duration_seconds_bucket{job=~".*model.*"}[5m])
+        )
+    
+    - record: model_service:response_time_seconds:p99
+      expr: |
+        histogram_quantile(0.99, 
+          rate(flask_http_request_duration_seconds_bucket{job=~".*model.*"}[5m])
+        )
+    
+    # Version-specific response time metrics
+    - record: model_service:response_time_seconds:rate5m_by_version
+      expr: |
+        rate(flask_http_request_duration_seconds_sum{job=~".*model.*"}[5m]) /
+        rate(flask_http_request_duration_seconds_count{job=~".*model.*"}[5m])
+        * on(instance) group_left(model_version) 
+        label_replace(up{job=~".*model.*"}, "model_version", "$1", "model_version", "(.*)")
+    
+    # Response time alerts
+    - alert: HighModelResponseTime
+      expr: model_service:response_time_seconds:p90 > {{ .Values.monitoring.responseTime.thresholds.warning | default "2.0" }}
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High model service response time"
+        description: "Model service P90 response time is {{ printf "%.2f" $value }}s, which exceeds the warning threshold"
+        
+    - alert: CriticalModelResponseTime
+      expr: model_service:response_time_seconds:p90 > {{ .Values.monitoring.responseTime.thresholds.critical | default "5.0" }}
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Critical model service response time"
+        description: "Model service P90 response time is {{ printf "%.2f" $value }}s, which exceeds the critical threshold"
+    
+    # Shadow vs Normal comparison alerts
+    {{- if .Values.shadowLaunch.enabled }}
+    - alert: ShadowVersionPerformanceDegradation
+      expr: |
+        (
+          avg(model_service:response_time_seconds:p90{model_version="shadow"}) - 
+          avg(model_service:response_time_seconds:p90{model_version=~"v1|v2"})
+        ) / avg(model_service:response_time_seconds:p90{model_version=~"v1|v2"}) > {{ .Values.monitoring.responseTime.shadowDegradationThreshold | default "0.5" }}
+      for: 3m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Shadow version showing performance degradation"
+        description: "Shadow version response time is {{ printf "%.1f" $value }}% slower than normal versions"
+    {{- end }}
+    
+    # Model service availability
+    - alert: ModelServiceDown
+      expr: up{job=~".*model.*"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Model service is down"
+        description: "Model service {{ $labels.instance }} has been down for more than 1 minute"
+    
+    # Request rate monitoring for model services
+    - alert: ModelServiceLowRequestRate
+      expr: rate(flask_http_request_total{job=~".*model.*"}[5m]) < {{ .Values.monitoring.requestRate.minThreshold | default "0.1" }}
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Low request rate to model service"
+        description: "Model service is receiving fewer than expected requests ({{ printf "%.2f" $value }} req/s)"
 {{- end }} 

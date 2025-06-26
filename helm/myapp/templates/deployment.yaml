@@ -63,6 +63,10 @@ spec:
       labels:
         {{- include "myapp.modelSelectorLabels" . | nindent 8 }}
         version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.modelService.targetPort }}"
     spec:
       containers:
         - name: model-service-v1
@@ -71,6 +75,11 @@ spec:
           ports:
             - containerPort: {{ .Values.modelService.targetPort }}
               name: http
+          env:
+            - name: MODEL_VERSION
+              value: "v1"
+            - name: ENABLE_METRICS
+              value: "true"
           resources:
             requests:
               cpu: "100m"
@@ -144,6 +153,10 @@ spec:
       labels:
         {{- include "myapp.modelSelectorLabels" . | nindent 8 }}
         version: v2
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.modelService.targetPort }}"
     spec:
       containers:
         - name: model-service-v2
@@ -152,6 +165,11 @@ spec:
           ports:
             - containerPort: {{ .Values.modelService.targetPort }}
               name: http
+          env:
+            - name: MODEL_VERSION
+              value: "v2"
+            - name: ENABLE_METRICS
+              value: "true"
           resources:
             requests:
               cpu: "100m"
@@ -181,6 +199,10 @@ spec:
       labels:
         {{- include "myapp.modelSelectorLabels" . | nindent 8 }}
         version: shadow
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.modelService.targetPort }}"
     spec:
       containers:
         - name: model-service-shadow
@@ -189,6 +211,11 @@ spec:
           ports:
             - containerPort: {{ .Values.modelService.targetPort }}
               name: http
+          env:
+            - name: MODEL_VERSION
+              value: "shadow"
+            - name: ENABLE_METRICS
+              value: "true"
           resources:
             requests:
               cpu: "100m"

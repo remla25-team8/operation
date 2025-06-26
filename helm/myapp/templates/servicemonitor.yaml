@@ -1,8 +1,9 @@
 {{- if .Values.metrics.serviceMonitor.enabled }}
+# App Service Monitor
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "myapp.fullname" . }}
+  name: {{ include "myapp.fullname" . }}-app
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
     {{- with .Values.metrics.serviceMonitor.additionalLabels }}
@@ -20,4 +21,97 @@ spec:
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
+---
+# Model Service Monitor - V1
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-v1
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v1
+    {{- with .Values.metrics.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "myapp.modelSelectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: {{ .Values.metrics.serviceMonitor.interval }}
+    scrapeTimeout: {{ .Values.metrics.serviceMonitor.scrapeTimeout }}
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_label_version]
+      targetLabel: model_version
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod_name
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+---
+# Model Service Monitor - V2
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-v2
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: v2
+    {{- with .Values.metrics.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "myapp.modelSelectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: {{ .Values.metrics.serviceMonitor.interval }}
+    scrapeTimeout: {{ .Values.metrics.serviceMonitor.scrapeTimeout }}
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_label_version]
+      targetLabel: model_version
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod_name
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+{{- if .Values.shadowLaunch.enabled }}
+---
+# Shadow Model Service Monitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "myapp.fullname" . }}-model-shadow
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+    app: model-service
+    version: shadow
+    {{- with .Values.metrics.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "myapp.modelSelectorLabels" . | nindent 6 }}
+      version: shadow
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: {{ .Values.metrics.serviceMonitor.interval }}
+    scrapeTimeout: {{ .Values.metrics.serviceMonitor.scrapeTimeout }}
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_label_version]
+      targetLabel: model_version
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod_name
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+{{- end }}
 {{- end }} 
