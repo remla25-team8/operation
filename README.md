@@ -117,25 +117,6 @@ docker network prune -f
 docker-compose up --build -d
 ```
 
-#### Testing the Application
-
-1. **Health Check:**
-   ```bash
-   curl http://localhost:8080/health
-   ```
-
-2. **Sentiment Analysis:**
-   ```bash
-   curl -X POST http://localhost:8080/analyze \
-     -H "Content-Type: application/json" \
-     -d '{"text": "This restaurant is amazing!"}'
-   ```
-
-3. **Get Service Information:**
-   ```bash
-   curl http://localhost:8080/info
-   ```
-
 ### Low Requirements Testing
 
 For testing with minimal requirements, we provide a bash script that sets up a basic environment. This is useful for quick testing or when you don't want to use the full Vagrant/Ansible setup.
