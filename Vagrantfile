@@ -7,6 +7,14 @@
   Vagrant.configure("2") do |config|
     config.vm.box = "bento/ubuntu-24.04"
     config.ssh.insert_key = false
+    
+    # SSH timeout configurations to prevent connection issues
+    config.vm.boot_timeout = 600
+    config.ssh.connect_timeout = 60
+    config.ssh.forward_agent = true
+    config.ssh.compression = true
+    config.ssh.keep_alive = true
+    config.ssh.keys_only = true
 
     # Sync host's ./shared folder to /shared in all VMs
     config.vm.synced_folder "./shared", "/mnt/shared"
@@ -30,6 +38,7 @@
         node.vm.provider "virtualbox" do |vb|
           vb.memory = MEMORY_WORKER
           vb.cpus = CPU_WORKER
+          vb.linked_clone = true
         end
       end
     end
